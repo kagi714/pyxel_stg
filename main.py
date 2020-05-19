@@ -86,6 +86,18 @@ class Player():
         self.__vel.x = vx
         self.__vel.y = vy
 
+def new_object(type, vec = None):
+    pos = vec if vec is not None else Vector(0.0,0.0)
+
+    if type == "Player":
+        anim = Anim(SHIP_IMGS, SHIP_TIMS)
+        return Player(pos, anim)
+    elif type == "Bullet":
+        anim = Anim(BULLET_IMGS, BULLET_TIMS)
+        return Bullet(pos, anim)
+    else:
+        raise
+
 class App():
     def __init__(self):
         pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
@@ -93,12 +105,10 @@ class App():
 
         self.objs = []
         pos = Vector(5.0, 10.0)
-        anim = Anim(SHIP_IMGS, SHIP_TIMS)
-        self.objs.append(Player(pos, anim))
+        self.objs.append(new_object("Player",pos))
 
         pos = Vector(20.0, 10.0)
-        anim = Anim(BULLET_IMGS, BULLET_TIMS)
-        self.objs.append(Bullet(pos, anim))
+        self.objs.append(new_object("Bullet",pos))
 
         pyxel.run(self.update, self.draw)
 

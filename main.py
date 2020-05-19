@@ -75,8 +75,14 @@ class Player():
 
     def __control(self):
         vx, vy = 0.0, 0.0
+        if pyxel.btn(pyxel.KEY_A) :
+            vx = -1.0
+        if pyxel.btn(pyxel.KEY_D) :
+            vx =  1.0
         if pyxel.btn(pyxel.KEY_W) :
-            vy = -2.0
+            vy = -1.0
+        if pyxel.btn(pyxel.KEY_S) :
+            vy =  1.0
         self.__vel.x = vx
         self.__vel.y = vy
 

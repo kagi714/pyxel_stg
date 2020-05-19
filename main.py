@@ -58,28 +58,34 @@ class Anim():
 
 class Bullet():
     def __init__(self, pos, anim):
-        self.__position = pos
+        self.__pos = pos
         self.__anim = anim
+        self.__vel = Vector(0.0,1.3,0.0)
 
     def update(self):
-        pass
+        self.__pos.update(self.__vel)
 
     def draw(self):
-        self.__anim.draw(self.__position)
+        self.__anim.draw(self.__pos)
 
 class Player():
     def __init__(self, pos, anim):
-        self.__position = pos
+        self.__pos = pos
         self.__anim = anim
+        self.__vel = Vector(0.0,0.0,0.0)
 
     def update(self):
         self.__control()
+        self.__pos.update(self.__vel)
 
     def draw(self):
-        self.__anim.draw(self.__position)
+        self.__anim.draw(self.__pos)
 
     def __control(self):
-        pass
+        vx, vy = 0.0, 0.0
+        if pyxel.btn(pyxel.KEY_W) :
+            vy = -2.0
+        self.__vel.set(vx, vy)
 
 class App():
     def __init__(self):
@@ -87,11 +93,11 @@ class App():
         pyxel.load("my_resource.pyxres")
 
         self.objs = []
-        pos = Position(5, 10)
+        pos = Vector(5.0, 10.0)
         anim = Anim(SHIP_IMGS, SHIP_TIMS)
         self.objs.append(Player(pos, anim))
 
-        pos = Position(20, 10)
+        pos = Vector(20.0, 10.0)
         anim = Anim(BULLET_IMGS, BULLET_TIMS)
         self.objs.append(Bullet(pos, anim))
 

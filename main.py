@@ -102,6 +102,7 @@ class App():
             o.update()
 
     def draw(self):
+        pyxel.cls(0)
         for o in self.objs :
             o.draw()
 

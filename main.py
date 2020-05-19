@@ -7,19 +7,27 @@ BULLET_TIMS = [6,6]
 SHIP_IMGS   = [[ 0,  0,  0,  7,  7,  0]]
 SHIP_TIMS   = [10]
 
-class Position():
-    def __init__(self, x=0, y=0, r=0):
-        self.__px = x
-        self.__py = y
-        self.__angle = r
+class Vector():
+    def __init__(self, x=0.0, y=0.0, r=0.0):
+        self.set(x,y,r)
 
-    def move(self, x=0, y=0, r=0):
-        self.__px += x
-        self.__py += y
+    def add(self, x=0.0, y=0.0, r=0.0):
+        self.__x += x
+        self.__y += y
         self.__angle += r
 
+    def set(self, x=0.0, y=0.0, r=0.0):
+        self.__x = x
+        self.__y = y
+        self.__angle = r
+
+    def update(self, vel):
+        self.__x += vel.__x
+        self.__y += vel.__y
+        self.__angle += vel.__angle
+
     def data(self):
-        return self.__px, self.__py, self.__angle
+        return self.__x, self.__y, self.__angle
 
 class Anim():
     def __init__(self, imgs, tims):

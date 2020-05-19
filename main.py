@@ -9,25 +9,17 @@ SHIP_TIMS   = [10]
 
 class Vector():
     def __init__(self, x=0.0, y=0.0, r=0.0):
-        self.set(x,y,r)
-
-    def add(self, x=0.0, y=0.0, r=0.0):
-        self.__x += x
-        self.__y += y
-        self.__angle += r
-
-    def set(self, x=0.0, y=0.0, r=0.0):
-        self.__x = x
-        self.__y = y
-        self.__angle = r
+        self.x = x
+        self.y = y
+        self.angle = r
 
     def update(self, vel):
-        self.__x += vel.__x
-        self.__y += vel.__y
-        self.__angle += vel.__angle
+        self.x += vel.x
+        self.y += vel.y
+        self.angle += vel.angle
 
     def data(self):
-        return self.__x, self.__y, self.__angle
+        return self.x, self.y, self.angle
 
 class Anim():
     def __init__(self, imgs, tims):
@@ -85,7 +77,8 @@ class Player():
         vx, vy = 0.0, 0.0
         if pyxel.btn(pyxel.KEY_W) :
             vy = -2.0
-        self.__vel.set(vx, vy)
+        self.__vel.x = vx
+        self.__vel.y = vy
 
 class App():
     def __init__(self):

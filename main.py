@@ -3,10 +3,15 @@ import math
 import pyxel
 
 #[[img, u, v, w, h, colkey], ...]
-BULLET_IMGS = [[ 0,  0,  8,  2,  2,  0],[ 0,  4,  8,  2,  2,  0]]
-BULLET_TIMS = [6,6]
-SHIP_IMGS   = [[ 0,  0,  0,  7,  7,  0]]
-SHIP_TIMS   = [10]
+BULLET_IMGS  = [[ 0,  0,  8,  2,  2,  0],[ 0,  4,  8,  2,  2,  0]]
+BULLET_TIMS  = [6,6]
+SHIP_IMGS    = [[ 0,  0,  0,  7,  7,  0]]
+SHIP_TIMS    = [10]
+EXPLODE_IMGS = [
+                [ 0,  16,  8,  8,  8,  0],[ 0,  24,  8,  8,  8,  0],
+                [ 0,  32,  8,  8,  8,  0],[ 0,  40,  8,  8,  8,  0]
+               ]
+EXPLODE_TIMS = [3, 3, 3, 3]
 
 class Vector():
     def __init__(self, x=0.0, y=0.0):

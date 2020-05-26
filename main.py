@@ -27,6 +27,14 @@ class Vector():
         self.x = x * math.cos(theta) - y * math.sin(theta)
         self.y = x * math.sin(theta) + y * math.cos(theta)
 
+class Collision():
+    def __init__(self, siz=0.0, type=0x00):
+        self.__size = siz
+        self.__type = type
+
+    def is_hit_to():
+        pass
+
 class Anim():
     def __init__(self, imgs, tims):
         if len(imgs) > 0 :

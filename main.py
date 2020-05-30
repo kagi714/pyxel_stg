@@ -103,19 +103,6 @@ class Player():
         self.__vel.x = vx
         self.__vel.y = vy
 
-def new_object(type, vec = None ,theta = None):
-    pos = vec if vec is not None else Vector(0.0,0.0)
-    rot = theta if theta is not None else 0
-
-    if type == "Player":
-        anim = Anim(SHIP_IMGS, SHIP_TIMS)
-        return Player(pos, rot, anim)
-    elif type == "Bullet":
-        anim = Anim(BULLET_IMGS, BULLET_TIMS)
-        return Bullet(pos, rot, anim)
-    else:
-        raise
-
 class App():
     def __init__(self):
         pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
@@ -123,10 +110,10 @@ class App():
 
         self.objs = []
         pos = Vector(5.0, 10.0)
-        self.objs.append(new_object("Player",pos))
+        self.objs.append(self.new_object("Player",pos))
 
         pos = Vector(20.0, 10.0)
-        self.objs.append(new_object("Bullet",pos,math.pi/6.0))
+        self.objs.append(self.new_object("Bullet",pos,math.pi/6.0))
 
         pyxel.run(self.update, self.draw)
 
@@ -138,5 +125,18 @@ class App():
         pyxel.cls(0)
         for o in self.objs :
             o.draw()
+
+    def new_object(self, type, vec = None ,theta = None):
+        pos = vec if vec is not None else Vector(0.0,0.0)
+        rot = theta if theta is not None else 0
+
+        if type == "Player":
+            anim = Anim(SHIP_IMGS, SHIP_TIMS)
+            return Player(pos, rot, anim)
+        elif type == "Bullet":
+            anim = Anim(BULLET_IMGS, BULLET_TIMS)
+            return Bullet(pos, rot, anim)
+        else:
+            raise
 
 App()

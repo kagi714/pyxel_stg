@@ -30,6 +30,9 @@ class Vector():
     def distance(self, vec):
         return math.sqrt((self.x-vec.x)**2+(self.y-vec.y)**2)
 
+    def is_in(self, x1, y1, x2, y2):
+        return (x1 < self.x < x2)and(y1 < self.y < y2)
+
 class Collision():
     def __init__(self, siz=0.0, type=0x00, onhit_func=None):
         self.size = siz
@@ -89,6 +92,7 @@ class Bullet():
     def update(self):
         self.__go_forward(self.__rot)
         self.__pos.update(self.__vel)
+        if self.__is_outofbound(): self.__app.remove_object(self)
         self.__time += 1
 
     def draw(self):
@@ -104,6 +108,9 @@ class Bullet():
         self.__vel.x = 0
         self.__vel.y = 0.3
         self.__vel.rotate(theta)
+
+    def __is_outofbound(self):
+        return not self.__pos.is_in(0, 0, 80, 60)
 
 class Player():
     def __init__(self, app, pos, rot, anim):
@@ -129,7 +136,7 @@ class Player():
         return self.__pos, self.__col
 
     def __on_hit(self, obj):
-        print("hit")
+        self.__app.remove_object(self)
 
     def __control(self):
         vx, vy = 0.0, 0.0
@@ -175,6 +182,9 @@ class App():
             return Bullet(self, pos, rot, anim)
         else:
             raise
+
+    def remove_object(self, obj):
+        self.objs.remove(obj)
 
     def get_hitobjects(self, obj):
         exclude_self  = lambda o : o is not obj

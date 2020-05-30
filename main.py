@@ -84,10 +84,12 @@ class Bullet():
 
         self.__col = Collision(2.0, 0x01, self.__on_hit)
         self.__vel = Vector(0.0,1.3)
+        self.__time = 0
 
     def update(self):
         self.__go_forward(self.__rot)
         self.__pos.update(self.__vel)
+        self.__time += 1
 
     def draw(self):
         self.__anim.draw(self.__pos)
@@ -112,11 +114,13 @@ class Player():
 
         self.__col = Collision(7.0, 0x0F, self.__on_hit)
         self.__vel = Vector(0.0,0.0)
+        self.__time = 0
 
     def update(self):
         self.__control()
         self.__pos.update(self.__vel)
         self.__col.update(self.__app.get_hitobjects(self), self.__pos)
+        self.__time += 1
 
     def draw(self):
         self.__anim.draw(self.__pos)

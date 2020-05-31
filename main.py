@@ -217,10 +217,10 @@ class App():
 
         self.objs = []
         pos = Vector(5.0, 10.0)
-        self.objs.append(self.new_object("Player",pos))
+        self.new_object("Player",pos)
 
         pos = Vector(20.0, 10.0)
-        self.objs.append(self.new_object("Bullet",pos,math.pi/6.0))
+        self.new_object("Bullet",pos,math.pi/6.0)
 
         pyxel.run(self.update, self.draw)
 
@@ -236,15 +236,24 @@ class App():
     def new_object(self, type, vec = None ,theta = None):
         pos = vec if vec is not None else Vector(0.0,0.0)
         rot = theta if theta is not None else 0
+        obj = None
 
         if type == "Player":
             anim = Anim(SHIP_IMGS, SHIP_TIMS)
-            return Player(self ,pos, rot, anim)
+            obj = Player(self ,pos, rot, anim)
         elif type == "Bullet":
             anim = Anim(BULLET_IMGS, BULLET_TIMS)
-            return Bullet(self, pos, rot, anim)
-        else:
-            raise
+            obj = Bullet(self, pos, rot, anim)
+        elif type == "Explode":
+            anim = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
+            obj = Explode(self, pos, rot, anim)
+        elif type == "Shot":
+            anim = Anim(SHOT_IMGS, SHOT_TIMS)
+            obj = Shot(self, pos, rot, anim)
+        
+        if obj is not None :
+            self.objs.append(obj)
+        return obj
 
     def remove_object(self, obj):
         self.objs.remove(obj)

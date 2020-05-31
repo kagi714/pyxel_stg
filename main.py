@@ -148,8 +148,8 @@ class Shot():
         self.__rot = rot
         self.__anim = anim
 
-        self.__col = Collision(2.0, 0x02, self.__on_hit)
-        self.__vel = Vector(0.0,1.3)
+        self.__col = Collision(2.0, 0xF0, self.__on_hit)
+        self.__vel = Vector(0.0,0.0)
         self.__time = 0
 
     def update(self):
@@ -170,7 +170,7 @@ class Shot():
 
     def __go_forward(self, theta):
         self.__vel.x = 0
-        self.__vel.y = 0.3
+        self.__vel.y = -1.5
         self.__vel.rotate(theta)
 
     def __is_outofbound(self):

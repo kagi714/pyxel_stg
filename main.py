@@ -1,5 +1,6 @@
 from random import randint
 import math
+import copy
 import pyxel
 
 #[[img, u, v, w, h, colkey], ...]
@@ -210,6 +211,9 @@ class Player():
         if pyxel.btn(pyxel.KEY_S) : vy =  1.0
         self.__vel.x = vx
         self.__vel.y = vy
+
+        if pyxel.btn(pyxel.KEY_ENTER) : 
+            self.__app.new_object("Shot", copy.copy(self.__pos), self.__rot)
 
 class App():
     def __init__(self):

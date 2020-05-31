@@ -95,6 +95,7 @@ class Bullet():
         self.__go_forward(self.__rot)
         self.__pos.update(self.__vel)
         if self.__is_outofbound(): self.__app.remove_object(self)
+        if self.__time > 300: self.__app.remove_object(self)
         self.__time += 1
 
     def draw(self):

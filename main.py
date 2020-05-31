@@ -68,8 +68,8 @@ class Anim():
     def draw(self, pos):
         img = self.__images[self.__index]
 
-        x = pos.x + (img[3]/2)
-        y = pos.y + (img[4]/2)
+        x = pos.x - (img[3]/2)
+        y = pos.y - (img[4]/2)
 
         pyxel.blt(x ,y ,img[0], img[1], img[2], img[3], img[4], img[5])
 
@@ -221,11 +221,8 @@ class App():
         pyxel.load("my_resource.pyxres")
 
         self.objs = []
-        pos = Vector(5.0, 10.0)
-        self.new_object("Player",pos)
-
-        pos = Vector(20.0, 10.0)
-        self.new_object("Bullet",pos,math.pi/6.0)
+        self.new_object("Player", Vector(0.0, 0.0))
+        self.new_object("Bullet", Vector(20.0, 10.0), math.pi/6.0)
 
         pyxel.run(self.update, self.draw)
 

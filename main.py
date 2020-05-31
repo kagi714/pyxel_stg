@@ -115,6 +115,66 @@ class Bullet():
     def __is_outofbound(self):
         return not self.__pos.is_in(0, 0, 80, 60)
 
+class Explode():
+    def __init__(self, app, pos, rot, anim):
+        self.__app = app
+        self.__pos = pos
+        self.__rot = rot
+        self.__anim = anim
+
+        self.__col = None
+        self.__vel = Vector(0.0,0.0)
+        self.__time = 0
+
+    def update(self):
+        self.__pos.update(self.__vel)
+        if self.__time > 12: self.__app.remove_object(self)
+        self.__time += 1
+
+    def draw(self):
+        self.__anim.draw(self.__pos)
+
+    def get_hitbox(self):
+        return None
+
+    def __on_hit(self, obj):
+        pass
+
+class Shot():
+    def __init__(self, app, pos, rot, anim):
+        self.__app = app
+        self.__pos = pos
+        self.__rot = rot
+        self.__anim = anim
+
+        self.__col = Collision(2.0, 0x02, self.__on_hit)
+        self.__vel = Vector(0.0,1.3)
+        self.__time = 0
+
+    def update(self):
+        self.__go_forward(self.__rot)
+        self.__pos.update(self.__vel)
+        if self.__is_outofbound(): self.__app.remove_object(self)
+        if self.__time > 300: self.__app.remove_object(self)
+        self.__time += 1
+
+    def draw(self):
+        self.__anim.draw(self.__pos)
+
+    def get_hitbox(self):
+        return self.__pos, self.__col
+
+    def __on_hit(self, obj):
+        pass
+
+    def __go_forward(self, theta):
+        self.__vel.x = 0
+        self.__vel.y = 0.3
+        self.__vel.rotate(theta)
+
+    def __is_outofbound(self):
+        return not self.__pos.is_in(0, 0, 80, 60)
+
 class Player():
     def __init__(self, app, pos, rot, anim):
         self.__app = app

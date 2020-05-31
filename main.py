@@ -1,5 +1,6 @@
 from random import randint
 import math
+import copy
 import pyxel
 
 #[[img, u, v, w, h, colkey], ...]
@@ -7,6 +8,8 @@ BULLET_IMGS  = [[ 0,  0,  8,  2,  2,  0],[ 0,  4,  8,  2,  2,  0]]
 BULLET_TIMS  = [6,6]
 SHIP_IMGS    = [[ 0,  0,  0,  7,  7,  0]]
 SHIP_TIMS    = [10]
+SHOT_IMGS    = [[ 0,  8, 12,  2,  4,  0],[ 0, 12, 12,  2,  4,  0]]
+SHOT_TIMS    = [3,3]
 EXPLODE_IMGS = [
                 [ 0,  16,  8,  8,  8,  0],[ 0,  24,  8,  8,  8,  0],
                 [ 0,  32,  8,  8,  8,  0],[ 0,  40,  8,  8,  8,  0]
@@ -29,6 +32,9 @@ class Vector():
 
     def distance(self, vec):
         return math.sqrt((self.x-vec.x)**2+(self.y-vec.y)**2)
+
+    def is_in(self, x1, y1, x2, y2):
+        return (x1 < self.x < x2)and(y1 < self.y < y2)
 
 class Collision():
     def __init__(self, siz=0.0, type=0x00, onhit_func=None):
@@ -62,8 +68,8 @@ class Anim():
     def draw(self, pos):
         img = self.__images[self.__index]
 
-        x = pos.x + (img[3]/2)
-        y = pos.y + (img[4]/2)
+        x = pos.x - (img[3]/2)
+        y = pos.y - (img[4]/2)
 
         pyxel.blt(x ,y ,img[0], img[1], img[2], img[3], img[4], img[5])
 
@@ -84,10 +90,14 @@ class Bullet():
 
         self.__col = Collision(2.0, 0x01, self.__on_hit)
         self.__vel = Vector(0.0,1.3)
+        self.__time = 0
 
     def update(self):
         self.__go_forward(self.__rot)
         self.__pos.update(self.__vel)
+        if self.__is_outofbound(): self.__app.remove_object(self)
+        if self.__time > 300: self.__app.remove_object(self)
+        self.__time += 1
 
     def draw(self):
         self.__anim.draw(self.__pos)
@@ -103,6 +113,69 @@ class Bullet():
         self.__vel.y = 0.3
         self.__vel.rotate(theta)
 
+    def __is_outofbound(self):
+        return not self.__pos.is_in(0, 0, 80, 60)
+
+class Explode():
+    def __init__(self, app, pos, rot, anim):
+        self.__app = app
+        self.__pos = pos
+        self.__rot = rot
+        self.__anim = anim
+
+        self.__col = None
+        self.__vel = Vector(0.0,0.0)
+        self.__time = 0
+
+    def update(self):
+        self.__pos.update(self.__vel)
+        if self.__time > 12: self.__app.remove_object(self)
+        self.__time += 1
+
+    def draw(self):
+        self.__anim.draw(self.__pos)
+
+    def get_hitbox(self):
+        return None
+
+    def __on_hit(self, obj):
+        pass
+
+class Shot():
+    def __init__(self, app, pos, rot, anim):
+        self.__app = app
+        self.__pos = pos
+        self.__rot = rot
+        self.__anim = anim
+
+        self.__col = Collision(2.0, 0xF0, self.__on_hit)
+        self.__vel = Vector(0.0,0.0)
+        self.__time = 0
+
+    def update(self):
+        self.__go_forward(self.__rot)
+        self.__pos.update(self.__vel)
+        if self.__is_outofbound(): self.__app.remove_object(self)
+        if self.__time > 300: self.__app.remove_object(self)
+        self.__time += 1
+
+    def draw(self):
+        self.__anim.draw(self.__pos)
+
+    def get_hitbox(self):
+        return self.__pos, self.__col
+
+    def __on_hit(self, obj):
+        pass
+
+    def __go_forward(self, theta):
+        self.__vel.x = 0
+        self.__vel.y = -1.5
+        self.__vel.rotate(theta)
+
+    def __is_outofbound(self):
+        return not self.__pos.is_in(0, 0, 80, 60)
+
 class Player():
     def __init__(self, app, pos, rot, anim):
         self.__app = app
@@ -112,11 +185,13 @@ class Player():
 
         self.__col = Collision(7.0, 0x0F, self.__on_hit)
         self.__vel = Vector(0.0,0.0)
+        self.__time = 0
 
     def update(self):
         self.__control()
         self.__pos.update(self.__vel)
         self.__col.update(self.__app.get_hitobjects(self), self.__pos)
+        self.__time += 1
 
     def draw(self):
         self.__anim.draw(self.__pos)
@@ -125,7 +200,8 @@ class Player():
         return self.__pos, self.__col
 
     def __on_hit(self, obj):
-        print("hit")
+        self.__app.new_object("Explode", self.__pos, self.__rot)
+        self.__app.remove_object(self)
 
     def __control(self):
         vx, vy = 0.0, 0.0
@@ -136,17 +212,17 @@ class Player():
         self.__vel.x = vx
         self.__vel.y = vy
 
+        if pyxel.btn(pyxel.KEY_ENTER) : 
+            self.__app.new_object("Shot", copy.copy(self.__pos), self.__rot)
+
 class App():
     def __init__(self):
         pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
         pyxel.load("my_resource.pyxres")
 
         self.objs = []
-        pos = Vector(5.0, 10.0)
-        self.objs.append(self.new_object("Player",pos))
-
-        pos = Vector(20.0, 10.0)
-        self.objs.append(self.new_object("Bullet",pos,math.pi/6.0))
+        self.new_object("Player", Vector(0.0, 0.0))
+        self.new_object("Bullet", Vector(20.0, 10.0), math.pi/6.0)
 
         pyxel.run(self.update, self.draw)
 
@@ -162,15 +238,27 @@ class App():
     def new_object(self, type, vec = None ,theta = None):
         pos = vec if vec is not None else Vector(0.0,0.0)
         rot = theta if theta is not None else 0
+        obj = None
 
         if type == "Player":
             anim = Anim(SHIP_IMGS, SHIP_TIMS)
-            return Player(self ,pos, rot, anim)
+            obj = Player(self ,pos, rot, anim)
         elif type == "Bullet":
             anim = Anim(BULLET_IMGS, BULLET_TIMS)
-            return Bullet(self, pos, rot, anim)
-        else:
-            raise
+            obj = Bullet(self, pos, rot, anim)
+        elif type == "Explode":
+            anim = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
+            obj = Explode(self, pos, rot, anim)
+        elif type == "Shot":
+            anim = Anim(SHOT_IMGS, SHOT_TIMS)
+            obj = Shot(self, pos, rot, anim)
+        
+        if obj is not None :
+            self.objs.append(obj)
+        return obj
+
+    def remove_object(self, obj):
+        self.objs.remove(obj)
 
     def get_hitobjects(self, obj):
         exclude_self  = lambda o : o is not obj

@@ -199,6 +199,7 @@ class Player():
         return self.__pos, self.__col
 
     def __on_hit(self, obj):
+        self.__app.new_object("Explode", self.__pos, self.__rot)
         self.__app.remove_object(self)
 
     def __control(self):

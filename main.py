@@ -6,7 +6,7 @@ import pyxel
 #[[img, u, v, w, h, colkey], ...]
 BULLET_IMGS  = [[ 0,  0,  8,  2,  2,  0],[ 0,  4,  8,  2,  2,  0]]
 BULLET_TIMS  = [6,6]
-SHIP_IMGS    = [[ 0,  0,  0,  7,  7,  0]]
+SHIP_IMGS    = [[ 0,  0, 16,  7,  7,  0]]
 SHIP_TIMS    = [10]
 SHOT_IMGS    = [[ 0,  8, 12,  2,  4,  0],[ 0, 12, 12,  2,  4,  0]]
 SHOT_TIMS    = [3,3]

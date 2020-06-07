@@ -37,20 +37,20 @@ class Vector():
         return (x1 < self.x < x2)and(y1 < self.y < y2)
 
 class Collision():
-    def __init__(self, siz=0.0, type=0x00, onhit_func=None):
+    def __init__(self, pos = None, siz=0.0, type=0x00, onhit_func=None):
+        self.pos = pos
         self.size = siz
         self.type = type
         self.__onhit = onhit_func
 
-    def update(self, objs, pos):
+    def update(self, objs):
         for o in objs:
-            opos, ocol = o.get_hitbox()
-            if self.__is_hit( pos, opos, ocol):
+            if self.__is_hit(o.get_hitbox()):
                 self.__onhit(o)
 
-    def __is_hit(self, selfpos, objpos, objcol):
+    def __is_hit(self, objcol):
         if self.type & objcol.type:
-            if selfpos.distance(objpos) < (self.size+objcol.size):
+            if self.pos.distance(objcol.pos) < (self.size + objcol.size):
                 return True
         return False
 
@@ -88,7 +88,7 @@ class Bullet():
         self.__rot = rot
         self.__anim = anim
 
-        self.__col = Collision(2.0, 0x01, self.__on_hit)
+        self.__col = Collision(self.__pos, 2.0, 0x01, self.__on_hit)
         self.__vel = Vector(0.0,1.3)
         self.__time = 0
 
@@ -103,7 +103,7 @@ class Bullet():
         self.__anim.draw(self.__pos)
 
     def get_hitbox(self):
-        return self.__pos, self.__col
+        return self.__col
 
     def __on_hit(self, obj):
         pass
@@ -148,7 +148,7 @@ class Shot():
         self.__rot = rot
         self.__anim = anim
 
-        self.__col = Collision(2.0, 0xF0, self.__on_hit)
+        self.__col = Collision(self.__pos, 2.0, 0xF0, self.__on_hit)
         self.__vel = Vector(0.0,0.0)
         self.__time = 0
 
@@ -163,7 +163,7 @@ class Shot():
         self.__anim.draw(self.__pos)
 
     def get_hitbox(self):
-        return self.__pos, self.__col
+        return self.__col
 
     def __on_hit(self, obj):
         pass
@@ -183,20 +183,20 @@ class Player():
         self.__rot = rot
         self.__anim = anim
 
-        self.__col = Collision(7.0, 0x0F, self.__on_hit)
+        self.__col = Collision(self.__pos, 7.0, 0x0F, self.__on_hit)
         self.__vel = Vector(0.0,0.0)
         self.__ctrl = PlayerControler()
 
     def update(self):
         self.__ctrl.update(self.__app, self.__pos, self.__vel, self.__rot)
         self.__pos.update(self.__vel)
-        self.__col.update(self.__app.get_hitobjects(self), self.__pos)
+        self.__col.update(self.__app.get_hitobjects(self))
 
     def draw(self):
         self.__anim.draw(self.__pos)
         
     def get_hitbox(self):
-        return self.__pos, self.__col
+        return self.__col
 
     def __on_hit(self, obj):
         self.__app.new_object("Explode", self.__pos, self.__rot)

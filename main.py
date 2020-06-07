@@ -213,13 +213,6 @@ class Player():
         self.__vel.y = vy
 
         if pyxel.btnp(pyxel.KEY_ENTER) : 
-            self.__shot(copy.copy(self.__pos), self.__rot)
-
-    def __shot(self, pos, rot):
-        pos.y -= 2
-        self.__app.new_object("Shot", pos, rot)
-
-        if pyxel.btnp(pyxel.KEY_ENTER) : 
             self.__app.new_object("Shot", copy.copy(self.__pos), self.__rot)
 
 class App():

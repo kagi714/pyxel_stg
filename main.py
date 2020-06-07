@@ -185,13 +185,12 @@ class Player():
 
         self.__col = Collision(7.0, 0x0F, self.__on_hit)
         self.__vel = Vector(0.0,0.0)
-        self.__time = 0
+        self.__ctrl = PlayerControler()
 
     def update(self):
-        self.__control()
+        self.__ctrl.update(self.__app, self.__pos, self.__vel, self.__rot)
         self.__pos.update(self.__vel)
         self.__col.update(self.__app.get_hitobjects(self), self.__pos)
-        self.__time += 1
 
     def draw(self):
         self.__anim.draw(self.__pos)
@@ -203,21 +202,32 @@ class Player():
         self.__app.new_object("Explode", self.__pos, self.__rot)
         self.__app.remove_object(self)
 
-    def __control(self):
-        vx, vy = 0.0, 0.0
-        if pyxel.btn(pyxel.KEY_A) : vx = -1.0
-        if pyxel.btn(pyxel.KEY_D) : vx =  1.0
-        if pyxel.btn(pyxel.KEY_W) : vy = -1.0
-        if pyxel.btn(pyxel.KEY_S) : vy =  1.0
-        self.__vel.x = vx
-        self.__vel.y = vy
+class PlayerControler():
+    def __init__(self):
+        self.__is_muteki = False
+        self.__is_alive = True
+        self.__time = 0
 
-        if pyxel.btnp(pyxel.KEY_ENTER):
-            self.__shot(copy.copy(self.__pos), self.__rot)
+    def update(self, app, pos, vel, rot):
+        self.__user_input(app, pos, vel, rot)
+        self.__time += 1
+        
+    def __user_input(self, app, pos, vel, rot):
+        if self.__is_alive :
+            vx, vy = 0.0, 0.0
+            if pyxel.btn(pyxel.KEY_A) : vx = -1.0
+            if pyxel.btn(pyxel.KEY_D) : vx =  1.0
+            if pyxel.btn(pyxel.KEY_W) : vy = -1.0
+            if pyxel.btn(pyxel.KEY_S) : vy =  1.0
+            vel.x = vx
+            vel.y = vy
 
-    def __shot(self, pos, rot):
+            if pyxel.btnp(pyxel.KEY_ENTER):
+                self.__shot(app, copy.copy(pos), rot)
+
+    def __shot(self, app, pos, rot):
         pos.y -= 2
-        self.__app.new_object("Shot", pos, rot)
+        app.new_object("Shot", pos, rot)
 
 class App():
     def __init__(self):

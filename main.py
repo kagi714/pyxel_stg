@@ -212,7 +212,7 @@ class Player():
         self.__vel.x = vx
         self.__vel.y = vy
 
-        if pyxel.btn(pyxel.KEY_ENTER) : 
+        if pyxel.btnp(pyxel.KEY_ENTER) : 
             self.__app.new_object("Shot", copy.copy(self.__pos), self.__rot)
 
 class App():

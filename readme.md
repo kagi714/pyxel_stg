@@ -4,4 +4,10 @@ pyxel_stg by kagi714
 概要
 ----
 
-TDB
+適当
+
+操作方法
+----------
+
+* WASD:移動
+* Enter:ショット

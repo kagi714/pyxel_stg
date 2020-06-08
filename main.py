@@ -140,40 +140,27 @@ class Explode(GameObject):
         if self.__time > 12: self._app.remove_object(self)
         self.__time += 1
 
-class Shot():
+class Shot(GameObject):
     def __init__(self, app, pos, rot, anim):
-        self.__app = app
-        self.__pos = pos
-        self.__rot = rot
-        self.__anim = anim
+        super().__init__(app, pos, rot, anim)
+        self._col = Collision(self._pos, 2.0, 0xF0, self._on_hit)
+        self._vel = Vector(0.0,0.0)
 
-        self.__col = Collision(self.__pos, 2.0, 0xF0, self.__on_hit)
-        self.__vel = Vector(0.0,0.0)
         self.__time = 0
 
-    def update(self):
-        self.__go_forward(self.__rot)
-        self.__pos.update(self.__vel)
-        if self.__is_outofbound(): self.__app.remove_object(self)
-        if self.__time > 300: self.__app.remove_object(self)
+    def _control(self):
+        self.__go_forward(self._rot)
+        if self.__is_outofbound(): self._app.remove_object(self)
+        if self.__time > 300: self._app.remove_object(self)
         self.__time += 1
 
-    def draw(self):
-        self.__anim.draw(self.__pos)
-
-    def get_hitbox(self):
-        return self.__col
-
-    def __on_hit(self, obj):
-        pass
-
     def __go_forward(self, theta):
-        self.__vel.x = 0
-        self.__vel.y = -1.5
-        self.__vel.rotate(theta)
+        self._vel.x = 0
+        self._vel.y = -1.5
+        self._vel.rotate(theta)
 
     def __is_outofbound(self):
-        return not self.__pos.is_in(0, 0, 80, 60)
+        return not self._pos.is_in(0, 0, 80, 60)
 
 class Player(GameObject):
     def __init__(self, app, pos, rot, anim):

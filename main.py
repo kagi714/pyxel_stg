@@ -81,6 +81,31 @@ class Anim():
             else:
                 self.__index += 1
 
+class GameObject():
+    def __init__(self, app, pos, rot, anim):
+        self._app = app
+        self._pos = pos
+        self._rot = rot
+        self._anim = anim
+        self._col = None
+        self._vel = None
+
+    def update(self):
+        self._control()
+        self._pos.update(self._vel)
+
+    def draw(self):
+        self._anim.draw(self._pos)
+        
+    def get_hitbox(self):
+        return self._col
+
+    def _on_hit(self, obj):
+        pass
+
+    def _control(self):
+        pass
+
 class Bullet():
     def __init__(self, app, pos, rot, anim):
         self.__app = app
@@ -176,58 +201,48 @@ class Shot():
     def __is_outofbound(self):
         return not self.__pos.is_in(0, 0, 80, 60)
 
-class Player():
+class Player(GameObject):
     def __init__(self, app, pos, rot, anim):
-        self.__app = app
-        self.__pos = pos
-        self.__rot = rot
-        self.__anim = anim
+        super().__init__(app, pos, rot, anim)
+        self._col = Collision(self._pos, 7.0, 0x0F, self._on_hit)
+        self._vel = Vector(0.0,0.0)
 
-        self.__col = Collision(self.__pos, 7.0, 0x0F, self.__on_hit)
-        self.__vel = Vector(0.0,0.0)
-        self.__ctrl = PlayerControler()
-
-    def update(self):
-        self.__ctrl.update(self.__app, self.__pos, self.__vel, self.__rot)
-        self.__pos.update(self.__vel)
-        self.__col.update(self.__app.get_hitobjects(self))
-
-    def draw(self):
-        self.__anim.draw(self.__pos)
-        
-    def get_hitbox(self):
-        return self.__col
-
-    def __on_hit(self, obj):
-        self.__app.new_object("Explode", self.__pos, self.__rot)
-        self.__app.remove_object(self)
-
-class PlayerControler():
-    def __init__(self):
         self.__is_muteki = False
         self.__is_alive = True
         self.__time = 0
 
-    def update(self, app, pos, vel, rot):
-        self.__user_input(app, pos, vel, rot)
+    def update(self):
+        self._control()
+        self._col.update(self._app.get_hitobjects(self))
+        self._pos.update(self._vel)
         self.__time += 1
+
+    def draw(self):
+        self._anim.draw(self._pos)
         
-    def __user_input(self, app, pos, vel, rot):
+    def get_hitbox(self):
+        return self._col
+
+    def _on_hit(self, obj):
+        self._app.new_object("Explode", self._pos, self._rot)
+        self._app.remove_object(self)
+
+    def _control(self):
         if self.__is_alive :
             vx, vy = 0.0, 0.0
             if pyxel.btn(pyxel.KEY_A) : vx = -1.0
             if pyxel.btn(pyxel.KEY_D) : vx =  1.0
             if pyxel.btn(pyxel.KEY_W) : vy = -1.0
             if pyxel.btn(pyxel.KEY_S) : vy =  1.0
-            vel.x = vx
-            vel.y = vy
+            self._vel.x = vx
+            self._vel.y = vy
 
             if pyxel.btnp(pyxel.KEY_ENTER):
-                self.__shot(app, copy.copy(pos), rot)
+                self.__shot(copy.copy(self._pos), self._rot)
 
-    def __shot(self, app, pos, rot):
+    def __shot(self, pos, rot):
         pos.y -= 2
-        app.new_object("Shot", pos, rot)
+        self._app.new_object("Shot", pos, rot)
 
 class App():
     def __init__(self):

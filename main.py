@@ -204,12 +204,6 @@ class Player(GameObject):
         self._pos.update(self._vel)
         self.__time += 1
 
-    def draw(self):
-        self._anim.draw(self._pos)
-        
-    def get_hitbox(self):
-        return self._col
-
     def _on_hit(self, obj):
         self._app.new_object("Explode", self._pos, self._rot)
         self._app.remove_object(self)

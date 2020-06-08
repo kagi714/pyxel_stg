@@ -128,30 +128,17 @@ class Bullet(GameObject):
     def __is_outofbound(self):
         return not self._pos.is_in(0, 0, 80, 60)
 
-class Explode():
+class Explode(GameObject):
     def __init__(self, app, pos, rot, anim):
-        self.__app = app
-        self.__pos = pos
-        self.__rot = rot
-        self.__anim = anim
+        super().__init__(app, pos, rot, anim)
+        self._col = None
+        self._vel = Vector(0.0,0.0)
 
-        self.__col = None
-        self.__vel = Vector(0.0,0.0)
         self.__time = 0
 
-    def update(self):
-        self.__pos.update(self.__vel)
-        if self.__time > 12: self.__app.remove_object(self)
+    def _control(self):
+        if self.__time > 12: self._app.remove_object(self)
         self.__time += 1
-
-    def draw(self):
-        self.__anim.draw(self.__pos)
-
-    def get_hitbox(self):
-        return None
-
-    def __on_hit(self, obj):
-        pass
 
 class Shot():
     def __init__(self, app, pos, rot, anim):

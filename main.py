@@ -165,7 +165,7 @@ class Shot(GameObject):
 class Player(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 7.0, 0x0F, self._on_hit)
+        self._col = Collision(self._pos, 3.0, 0x0F, self._on_hit)
         self._vel = Vector(0.0,0.0)
 
         self.__is_muteki = False

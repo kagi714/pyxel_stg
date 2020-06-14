@@ -185,6 +185,7 @@ class EnemyZako(GameObject):
         if self.__is_alive:
             if obj.get_hitbox().type != 0x22:
                 self.damage(1)
+                self._app.remove_object(obj)
 
     def damage(self, dmg):
         self.__hp -= dmg

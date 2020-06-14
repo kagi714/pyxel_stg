@@ -182,14 +182,16 @@ class EnemyZako(GameObject):
         self.__time += 1
 
     def _on_hit(self, obj):
-        if obj.get_hitbox().type != 0x22:
-            self.damage(1)
+        if self.__is_alive:
+            if obj.get_hitbox().type != 0x22:
+                self.damage(1)
 
     def damage(self, dmg):
         self.__hp -= dmg
         if self.__hp <= 0:
             self._app.new_object("Explode", self._pos, self._rot)
             self._app.remove_object(self)
+            self.__is_alive = False
 
     def _control(self):
         self.__go_forward(self._rot)
@@ -227,8 +229,10 @@ class Player(GameObject):
         self.__time += 1
 
     def _on_hit(self, obj):
-        self._app.new_object("Explode", self._pos, self._rot)
-        self._app.remove_object(self)
+        if self.__is_alive :
+            self._app.new_object("Explode", self._pos, self._rot)
+            self._app.remove_object(self)
+            self.__is_alive = False
 
     def _control(self):
         if self.__is_alive :

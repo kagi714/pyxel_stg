@@ -15,6 +15,8 @@ EXPLODE_IMGS = [
                 [ 0,  32,  8,  8,  8,  0],[ 0,  40,  8,  8,  8,  0]
                ]
 EXPLODE_TIMS = [3, 3, 3, 3]
+ENEMY_IMGS   = [[ 0,  8, 56,  7,  7,  0]]
+ENEMY_TIMS   = [10]
 
 class Vector():
     def __init__(self, x=0.0, y=0.0):
@@ -193,11 +195,12 @@ class EnemyZako(GameObject):
         self.__go_forward(self._rot)
         if self.__is_outofbound(): self._app.remove_object(self)
         if self.__time > 300: self._app.remove_object(self)
-        if self.__time % 10 == 0: self.__shot(self._pos, self._rot)
+        if self.__time % 10 == 0:
+            self.__shot(copy.copy(self._pos), self._rot)
 
     def __go_forward(self, theta):
         self._vel.x = 0
-        self._vel.y = 0.5
+        self._vel.y = 0.1
         self._vel.rotate(theta)
 
     def __is_outofbound(self):
@@ -252,6 +255,7 @@ class App():
         self.objs = []
         self.new_object("Player", Vector(0.0, 0.0))
         self.new_object("Bullet", Vector(20.0, 10.0), math.pi/6.0)
+        self.new_object("EnemyZako", Vector(10.0, 10.0))
 
         pyxel.run(self.update, self.draw)
 
@@ -281,7 +285,9 @@ class App():
         elif type == "Shot":
             anim = Anim(SHOT_IMGS, SHOT_TIMS)
             obj = Shot(self, pos, rot, anim)
-        
+        elif type == "EnemyZako":
+            anim = Anim(ENEMY_IMGS, ENEMY_TIMS)
+            obj = EnemyZako(self, pos, rot, anim)
         if obj is not None :
             self.objs.append(obj)
         return obj

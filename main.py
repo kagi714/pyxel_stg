@@ -259,8 +259,8 @@ class App():
 
         self.objs = []
         self.new_object("Player", Vector(0.0, 0.0))
-        self.new_object("Bullet", Vector(20.0, 10.0), math.pi/6.0)
-        self.new_object("EnemyZako", Vector(10.0, 10.0))
+        self.new_object("EnemyZako", Vector(40.0, 10.0))
+        self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
 
         pyxel.run(self.update, self.draw)
 

@@ -197,8 +197,8 @@ class EnemyZako(GameObject):
     def _control(self):
         self.__go_forward(self._rot)
         if self.__is_outofbound(): self._app.remove_object(self)
-        if self.__time > 300: self._app.remove_object(self)
-        if self.__time % 10 == 0:
+        if self.__time > 600: self._app.remove_object(self)
+        if self.__time % 90 == 0:
             self.__shot(copy.copy(self._pos), self._rot)
 
     def __go_forward(self, theta):

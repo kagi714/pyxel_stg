@@ -162,6 +162,51 @@ class Shot(GameObject):
     def __is_outofbound(self):
         return not self._pos.is_in(0, 0, 80, 60)
 
+class EnemyZako(GameObject):
+    def __init__(self, app, pos, rot, anim):
+        super().__init__(app, pos, rot, anim)
+        self._col = Collision(self._pos, 4.0, 0x22, self._on_hit)
+        self._vel = Vector(0.0,0.0)
+
+        self.__is_muteki = False
+        self.__is_alive = True
+        self.__hp = 5
+        self.__time = 0
+
+    def update(self):
+        self._control()
+        self._col.update(self._app.get_hitobjects(self))
+        self._pos.update(self._vel)
+        self.__time += 1
+
+    def _on_hit(self, obj):
+        if obj.get_hitbox().type != 0x22:
+            self.damage(1)
+
+    def damage(self, dmg):
+        self.__hp -= dmg
+        if self.__hp <= 0:
+            self._app.new_object("Explode", self._pos, self._rot)
+            self._app.remove_object(self)
+
+    def _control(self):
+        self.__go_forward(self._rot)
+        if self.__is_outofbound(): self._app.remove_object(self)
+        if self.__time > 300: self._app.remove_object(self)
+        if self.__time % 10 == 0: self.__shot(self._pos, self._rot)
+
+    def __go_forward(self, theta):
+        self._vel.x = 0
+        self._vel.y = 0.5
+        self._vel.rotate(theta)
+
+    def __is_outofbound(self):
+        return not self._pos.is_in(0, 0, 80, 60)
+
+    def __shot(self, pos, rot):
+        pos.y -= 2
+        self._app.new_object("Bullet", pos, rot)
+
 class Player(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)

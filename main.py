@@ -284,13 +284,16 @@ class App():
         pyxel.load("my_resource.pyxres")
 
         self.__obj_generator = ObjectGenerator()
-
         self.objs = []
+
+        self.__game_init()
+
+        pyxel.run(self.__update, self.__draw)
+
+    def __game_init(self):
         self.new_object("Player", Vector(0.0, 0.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
-
-        pyxel.run(self.__update, self.__draw)
 
     def __update(self):
         for o in self.objs :
@@ -303,9 +306,7 @@ class App():
 
     def new_object(self, type, vec = Vector(0.0,0.0) ,theta = 0):
         obj = self.__obj_generator.generate(self, type, vec, theta)
-        if obj is not None :
-            self.objs.append(obj)
-
+        if obj is not None : self.objs.append(obj)
         return obj
 
     def remove_object(self, obj):

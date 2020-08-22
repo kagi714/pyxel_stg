@@ -273,26 +273,24 @@ class App():
         for o in self.objs :
             o.draw()
 
-    def new_object(self, type, vec = None ,theta = None):
-        pos = vec if vec is not None else Vector(0.0,0.0)
-        rot = theta if theta is not None else 0
+    def new_object(self, type, vec = Vector(0.0,0.0) ,theta = 0):
         obj = None
 
         if type == "Player":
             anim = Anim(SHIP_IMGS, SHIP_TIMS)
-            obj = Player(self ,pos, rot, anim)
+            obj = Player(self , vec, theta, anim)
         elif type == "Bullet":
             anim = Anim(BULLET_IMGS, BULLET_TIMS)
-            obj = Bullet(self, pos, rot, anim)
+            obj = Bullet(self, vec, theta, anim)
         elif type == "Explode":
             anim = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
-            obj = Explode(self, pos, rot, anim)
+            obj = Explode(self, vec, theta, anim)
         elif type == "Shot":
             anim = Anim(SHOT_IMGS, SHOT_TIMS)
-            obj = Shot(self, pos, rot, anim)
+            obj = Shot(self, vec, theta, anim)
         elif type == "EnemyZako":
             anim = Anim(ENEMY_IMGS, ENEMY_TIMS)
-            obj = EnemyZako(self, pos, rot, anim)
+            obj = EnemyZako(self, vec, theta, anim)
         if obj is not None :
             self.objs.append(obj)
         return obj

@@ -252,10 +252,38 @@ class Player(GameObject):
         pos.y -= 2
         self._app.new_object("Shot", pos, rot)
 
+class ObjectGenerator():
+    def __init__(self,):
+        self.__obj_dict = {}
+        self.__obj_dict["Player"] = Player
+        self.__obj_dict["Bullet"] = Bullet
+        self.__obj_dict["Shot"] = Shot
+        self.__obj_dict["Explode"] = Explode
+        self.__obj_dict["EnemyZako"] = EnemyZako
+        
+        self.__anim_dict = {}
+        self.__anim_dict["Player"] = Anim(SHIP_IMGS, SHIP_TIMS)
+        self.__anim_dict["Bullet"] = Anim(BULLET_IMGS, BULLET_TIMS)
+        self.__anim_dict["Shot"] = Anim(SHOT_IMGS, SHOT_TIMS)
+        self.__anim_dict["Explode"] = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
+        self.__anim_dict["EnemyZako"] = Anim(ENEMY_IMGS, ENEMY_TIMS)
+
+
+    def generate(self, app, type, vec = Vector(0.0,0.0) ,theta = 0):
+        obj = None
+
+        if type in self.__obj_dict:
+            anim = self.__anim_dict[type]
+            obj = self.__obj_dict[type](app, vec, theta, anim)
+
+        return obj
+
 class App():
     def __init__(self):
         pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
         pyxel.load("my_resource.pyxres")
+
+        self.__obj_generator = ObjectGenerator()
 
         self.objs = []
         self.new_object("Player", Vector(0.0, 0.0))
@@ -274,25 +302,10 @@ class App():
             o.draw()
 
     def new_object(self, type, vec = Vector(0.0,0.0) ,theta = 0):
-        obj = None
-
-        if type == "Player":
-            anim = Anim(SHIP_IMGS, SHIP_TIMS)
-            obj = Player(self , vec, theta, anim)
-        elif type == "Bullet":
-            anim = Anim(BULLET_IMGS, BULLET_TIMS)
-            obj = Bullet(self, vec, theta, anim)
-        elif type == "Explode":
-            anim = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
-            obj = Explode(self, vec, theta, anim)
-        elif type == "Shot":
-            anim = Anim(SHOT_IMGS, SHOT_TIMS)
-            obj = Shot(self, vec, theta, anim)
-        elif type == "EnemyZako":
-            anim = Anim(ENEMY_IMGS, ENEMY_TIMS)
-            obj = EnemyZako(self, vec, theta, anim)
+        obj = self.__obj_generator.generate(self, type, vec, theta)
         if obj is not None :
             self.objs.append(obj)
+
         return obj
 
     def remove_object(self, obj):

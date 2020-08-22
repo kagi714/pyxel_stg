@@ -290,13 +290,13 @@ class App():
         self.new_object("EnemyZako", Vector(40.0, 10.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
 
-        pyxel.run(self.update, self.draw)
+        pyxel.run(self.__update, self.__draw)
 
-    def update(self):
+    def __update(self):
         for o in self.objs :
             o.update()
 
-    def draw(self):
+    def __draw(self):
         pyxel.cls(0)
         for o in self.objs :
             o.draw()

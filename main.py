@@ -157,7 +157,6 @@ class Explode(GameObject):
 
     def _control(self):
         if self._time > 12: self._app.remove_object(self)
-        self._time += 1
 
 class Shot(GameObject):
     def __init__(self, app, pos, rot, anim):

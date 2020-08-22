@@ -19,6 +19,11 @@ ENEMY_IMGS   = [[ 0,  8, 56,  7,  7,  0]]
 ENEMY_TIMS   = [10]
 
 class Vector():
+    """
+    ２次元ベクトルクラス
+    位置や速度を表すために使用する
+    """
+
     def __init__(self, x=0.0, y=0.0):
         self.x = x
         self.y = y
@@ -39,6 +44,10 @@ class Vector():
         return (x1 < self.x < x2)and(y1 < self.y < y2)
 
 class Collision():
+    """
+    当たり判定用クラス
+    """
+
     def __init__(self, pos = None, siz=0.0, type=0x00, onhit_func=None):
         self.pos = pos
         self.size = siz
@@ -86,11 +95,11 @@ class Anim():
 class GameObject():
     def __init__(self, app, pos, rot, anim):
         self._app = app
-        self._pos = pos
-        self._rot = rot
-        self._anim = anim
-        self._col = None
-        self._vel = None
+        self._pos = pos   # 位置
+        self._rot = rot   # 角度
+        self._anim = anim # アニメーション
+        self._col = None  # 当たり判定
+        self._vel = None  # 速度
 
     def update(self):
         self._control()
@@ -100,12 +109,23 @@ class GameObject():
         self._anim.draw(self._pos)
         
     def get_hitbox(self):
+        """
+        当たり判定情報を返す
+        """
         return self._col
 
     def _on_hit(self, obj):
+        """
+        何かに衝突した時の処理
+
+        obj : 衝突したオブジェクト
+        """
         pass
 
     def _control(self):
+        """
+        毎フレーム行う処理
+        """
         pass
 
 class Bullet(GameObject):
@@ -305,14 +325,27 @@ class App():
             o.draw()
 
     def new_object(self, type, vec = Vector(0.0,0.0) ,theta = 0):
+        """
+        オブジェクトを生成する
+
+        type  : オブジェクトの種類(string型)
+        vec   : オブジェクトの初期位置
+        theta : オブジェクトの初期角度
+        """
         obj = self.__obj_generator.generate(self, type, vec, theta)
         if obj is not None : self.objs.append(obj)
         return obj
 
     def remove_object(self, obj):
+        """
+        オブジェクトを削除する
+        """
         self.objs.remove(obj)
 
     def get_hitobjects(self, obj):
+        """
+        当たり判定の処理に必要なオブジェクトのリストを得る
+        """
         exclude_self  = lambda o : o is not obj
         is_has_hitbox = lambda o : o.get_hitbox() is not None
 

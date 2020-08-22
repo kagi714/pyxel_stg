@@ -100,10 +100,12 @@ class GameObject():
         self._anim = anim # アニメーション
         self._col = None  # 当たり判定
         self._vel = None  # 速度
+        self._time = 0    # 時間
 
     def update(self):
         self._control()
         self._pos.update(self._vel)
+        self._time += 1
 
     def draw(self):
         self._anim.draw(self._pos)
@@ -134,13 +136,10 @@ class Bullet(GameObject):
         self._col = Collision(self._pos, 2.0, 0x01, self._on_hit)
         self._vel = Vector(0.0,1.3)
 
-        self.__time = 0
-
     def _control(self):
         self.__go_forward(self._rot)
         if self.__is_outofbound(): self._app.remove_object(self)
-        if self.__time > 300: self._app.remove_object(self)
-        self.__time += 1
+        if self._time > 300: self._app.remove_object(self)
 
     def __go_forward(self, theta):
         self._vel.x = 0
@@ -156,11 +155,9 @@ class Explode(GameObject):
         self._col = None
         self._vel = Vector(0.0,0.0)
 
-        self.__time = 0
-
     def _control(self):
-        if self.__time > 12: self._app.remove_object(self)
-        self.__time += 1
+        if self._time > 12: self._app.remove_object(self)
+        self._time += 1
 
 class Shot(GameObject):
     def __init__(self, app, pos, rot, anim):
@@ -168,13 +165,10 @@ class Shot(GameObject):
         self._col = Collision(self._pos, 2.0, 0xF0, self._on_hit)
         self._vel = Vector(0.0,0.0)
 
-        self.__time = 0
-
     def _control(self):
         self.__go_forward(self._rot)
         if self.__is_outofbound(): self._app.remove_object(self)
-        if self.__time > 300: self._app.remove_object(self)
-        self.__time += 1
+        if self._time > 300: self._app.remove_object(self)
 
     def __go_forward(self, theta):
         self._vel.x = 0
@@ -193,13 +187,12 @@ class EnemyZako(GameObject):
         self.__is_muteki = False
         self.__is_alive = True
         self.__hp = 5
-        self.__time = 0
 
     def update(self):
         self._control()
         self._col.update(self._app.get_hitobjects(self))
         self._pos.update(self._vel)
-        self.__time += 1
+        self._time += 1
 
     def _on_hit(self, obj):
         if self.__is_alive:
@@ -217,8 +210,8 @@ class EnemyZako(GameObject):
     def _control(self):
         self.__go_forward(self._rot)
         if self.__is_outofbound(): self._app.remove_object(self)
-        if self.__time > 600: self._app.remove_object(self)
-        if self.__time % 90 == 0:
+        if self._time > 600: self._app.remove_object(self)
+        if self._time % 90 == 0:
             self.__shot(copy.copy(self._pos), self._rot)
 
     def __go_forward(self, theta):
@@ -241,13 +234,12 @@ class Player(GameObject):
 
         self.__is_muteki = False
         self.__is_alive = True
-        self.__time = 0
 
     def update(self):
         self._control()
         self._col.update(self._app.get_hitobjects(self))
         self._pos.update(self._vel)
-        self.__time += 1
+        self._time += 1
 
     def _on_hit(self, obj):
         if self.__is_alive :

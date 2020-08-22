@@ -15,6 +15,8 @@ EXPLODE_IMGS = [
                 [ 0,  32,  8,  8,  8,  0],[ 0,  40,  8,  8,  8,  0]
                ]
 EXPLODE_TIMS = [3, 3, 3, 3]
+ENEMY_IMGS   = [[ 0,  8, 56,  7,  7,  0]]
+ENEMY_TIMS   = [10]
 
 class Vector():
     def __init__(self, x=0.0, y=0.0):
@@ -162,6 +164,55 @@ class Shot(GameObject):
     def __is_outofbound(self):
         return not self._pos.is_in(0, 0, 80, 60)
 
+class EnemyZako(GameObject):
+    def __init__(self, app, pos, rot, anim):
+        super().__init__(app, pos, rot, anim)
+        self._col = Collision(self._pos, 4.0, 0x22, self._on_hit)
+        self._vel = Vector(0.0,0.0)
+
+        self.__is_muteki = False
+        self.__is_alive = True
+        self.__hp = 5
+        self.__time = 0
+
+    def update(self):
+        self._control()
+        self._col.update(self._app.get_hitobjects(self))
+        self._pos.update(self._vel)
+        self.__time += 1
+
+    def _on_hit(self, obj):
+        if self.__is_alive:
+            if obj.get_hitbox().type != 0x22:
+                self.damage(1)
+                self._app.remove_object(obj)
+
+    def damage(self, dmg):
+        self.__hp -= dmg
+        if self.__hp <= 0:
+            self._app.new_object("Explode", self._pos, self._rot)
+            self._app.remove_object(self)
+            self.__is_alive = False
+
+    def _control(self):
+        self.__go_forward(self._rot)
+        if self.__is_outofbound(): self._app.remove_object(self)
+        if self.__time > 600: self._app.remove_object(self)
+        if self.__time % 90 == 0:
+            self.__shot(copy.copy(self._pos), self._rot)
+
+    def __go_forward(self, theta):
+        self._vel.x = 0
+        self._vel.y = 0.1
+        self._vel.rotate(theta)
+
+    def __is_outofbound(self):
+        return not self._pos.is_in(0, 0, 80, 60)
+
+    def __shot(self, pos, rot):
+        pos.y -= 2
+        self._app.new_object("Bullet", pos, rot)
+
 class Player(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
@@ -179,8 +230,10 @@ class Player(GameObject):
         self.__time += 1
 
     def _on_hit(self, obj):
-        self._app.new_object("Explode", self._pos, self._rot)
-        self._app.remove_object(self)
+        if self.__is_alive :
+            self._app.new_object("Explode", self._pos, self._rot)
+            self._app.remove_object(self)
+            self.__is_alive = False
 
     def _control(self):
         if self.__is_alive :
@@ -206,7 +259,8 @@ class App():
 
         self.objs = []
         self.new_object("Player", Vector(0.0, 0.0))
-        self.new_object("Bullet", Vector(20.0, 10.0), math.pi/6.0)
+        self.new_object("EnemyZako", Vector(40.0, 10.0))
+        self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
 
         pyxel.run(self.update, self.draw)
 
@@ -219,24 +273,24 @@ class App():
         for o in self.objs :
             o.draw()
 
-    def new_object(self, type, vec = None ,theta = None):
-        pos = vec if vec is not None else Vector(0.0,0.0)
-        rot = theta if theta is not None else 0
+    def new_object(self, type, vec = Vector(0.0,0.0) ,theta = 0):
         obj = None
 
         if type == "Player":
             anim = Anim(SHIP_IMGS, SHIP_TIMS)
-            obj = Player(self ,pos, rot, anim)
+            obj = Player(self , vec, theta, anim)
         elif type == "Bullet":
             anim = Anim(BULLET_IMGS, BULLET_TIMS)
-            obj = Bullet(self, pos, rot, anim)
+            obj = Bullet(self, vec, theta, anim)
         elif type == "Explode":
             anim = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
-            obj = Explode(self, pos, rot, anim)
+            obj = Explode(self, vec, theta, anim)
         elif type == "Shot":
             anim = Anim(SHOT_IMGS, SHOT_TIMS)
-            obj = Shot(self, pos, rot, anim)
-        
+            obj = Shot(self, vec, theta, anim)
+        elif type == "EnemyZako":
+            anim = Anim(ENEMY_IMGS, ENEMY_TIMS)
+            obj = EnemyZako(self, vec, theta, anim)
         if obj is not None :
             self.objs.append(obj)
         return obj

@@ -127,6 +127,21 @@ class GameObject():
         """
         pass
 
+    def hurt(self, dmg):
+        """
+        ダメージを受ける処理
+
+        dmg : ダメージ値
+        """
+        pass
+
+    def destroy(self):
+        """
+        死亡時の処理
+        """
+        self._app.remove_object(self)
+        self._alive = False
+
     def _control(self):
         """
         毎フレーム行う処理
@@ -167,6 +182,9 @@ class Shot(GameObject):
         self._col = Collision(self._pos, 2.0, 0xF0, self._on_hit)
         self._vel = Vector(0.0,0.0)
 
+    def hurt(self, dmg):
+        self.destroy()
+
     def _control(self):
         self.__go_forward(self._rot)
         if self.__is_outofbound(): self._app.remove_object(self)
@@ -198,15 +216,14 @@ class EnemyZako(GameObject):
     def _on_hit(self, obj):
         if self._alive:
             if obj.get_hitbox().type != 0x22:
-                self.damage(1)
-                self._app.remove_object(obj)
+                self.hurt(1)
+                obj.hurt(1)
 
-    def damage(self, dmg):
+    def hurt(self, dmg):
         self.__hp -= dmg
         if self.__hp <= 0:
             self._app.new_object("Explode", self._pos, self._rot)
-            self._app.remove_object(self)
-            self._alive = False
+            self.destroy()
 
     def _control(self):
         self.__go_forward(self._rot)
@@ -242,10 +259,13 @@ class Player(GameObject):
         self._time += 1
 
     def _on_hit(self, obj):
-        if self._alive :
-            self._app.new_object("Explode", self._pos, self._rot)
-            self._app.remove_object(self)
-            self._alive = False
+        if self._alive & (self._muteki_time == 0):
+            self.hurt(1)
+
+    def hurt(self, dmg):
+        self._app.new_object("Explode", self._pos, self._rot)
+        #self.destroy()
+        self._muteki_time = 10
 
     def _control(self):
         if self._alive :
@@ -259,6 +279,8 @@ class Player(GameObject):
 
             if pyxel.btnp(pyxel.KEY_ENTER):
                 self.__shot(copy.copy(self._pos), self._rot)
+
+            if self._muteki_time > 0 : self._muteki_time -= 1
 
     def __shot(self, pos, rot):
         pos.y -= 2

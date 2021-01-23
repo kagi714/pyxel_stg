@@ -50,16 +50,14 @@ class Collision():
     当たり判定用クラス
     """
 
-    def __init__(self, pos = None, siz=0.0, type=0x00, onhit_func=None):
+    def __init__(self, pos = None, siz=0.0, type=0x00):
         self.pos = pos
         self.size = siz
         self.type = type
-        self.__onhit = onhit_func
 
-    def update(self, objs):
+    def update(self, objs, onhit):
         for o in objs:
-            if self.__is_hit(o.get_hitbox()):
-                self.__onhit(o)
+            if self.__is_hit(o.get_hitbox()): onhit(o)
 
     def __is_hit(self, objcol):
         if self.type & objcol.type:
@@ -150,7 +148,7 @@ class GameObject():
 class Bullet(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 2.0, 0x01, self._on_hit)
+        self._col = Collision(self._pos, 2.0, 0x01)
         self._vel = Vector(0.0,1.3)
 
     def _control(self):
@@ -178,7 +176,7 @@ class Explode(GameObject):
 class Shot(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 2.0, 0xF0, self._on_hit)
+        self._col = Collision(self._pos, 2.0, 0xF0)
         self._vel = Vector(0.0,0.0)
 
     def hurt(self, dmg):
@@ -200,7 +198,7 @@ class Shot(GameObject):
 class EnemyZako(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 4.0, 0x22, self._on_hit)
+        self._col = Collision(self._pos, 4.0, 0x22)
         self._vel = Vector(0.0,0.0)
 
         self.__is_muteki = False
@@ -208,7 +206,7 @@ class EnemyZako(GameObject):
 
     def update(self):
         self._control()
-        self._col.update(self._app.get_hitobjects(self))
+        self._col.update(self._app.get_hitobjects(self), self._on_hit)
         self._pos.update(self._vel)
         self._time += 1
 
@@ -246,14 +244,14 @@ class EnemyZako(GameObject):
 class Player(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 3.0, 0x0F, self._on_hit)
+        self._col = Collision(self._pos, 3.0, 0x0F)
         self._vel = Vector(0.0,0.0)
 
         self._muteki_time = 0
 
     def update(self):
         self._control()
-        self._col.update(self._app.get_hitobjects(self))
+        self._col.update(self._app.get_hitobjects(self), self._on_hit)
         self._pos.update(self._vel)
         self._time += 1
 

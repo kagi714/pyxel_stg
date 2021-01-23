@@ -264,7 +264,7 @@ class Player(GameObject):
     def hurt(self, dmg):
         self._app.new_object("Explode", self._pos, self._rot)
         #self.destroy()
-        self._muteki_time = 10
+        self._muteki_time = 60
 
     def _control(self):
         if self._alive :

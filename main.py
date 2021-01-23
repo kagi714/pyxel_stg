@@ -312,6 +312,7 @@ class ObjectGenerator():
 class App():
     def __init__(self):
         self.objs = []
+        self.player = None
         self.guis = []   # unused
         self.bg   = None # unused
         self.__obj_generator = ObjectGenerator()
@@ -322,7 +323,7 @@ class App():
         pyxel.run(self.__update, self.__draw)
 
     def __game_init(self):
-        self.new_object("Player", Vector(0.0, 0.0))
+        self.player = self.new_object("Player", Vector(0.0, 0.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
 
@@ -352,6 +353,12 @@ class App():
         オブジェクトを削除する
         """
         self.objs.remove(obj)
+
+    def get_player(self):
+        """
+        自機のGameObjectを返す
+        """
+        return self.player
 
     def get_hitobjects(self, obj):
         """

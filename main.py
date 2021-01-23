@@ -191,7 +191,7 @@ class Shot(GameObject):
 
     def __go_forward(self, theta):
         self._vel.x = 0
-        self._vel.y = -1.5
+        self._vel.y = -p.SHOT_SPD
         self._vel.rotate(theta)
 
     def __is_outofbound(self):

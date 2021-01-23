@@ -155,8 +155,8 @@ class Bullet(GameObject):
 
     def _control(self):
         self.__go_forward(self._rot)
-        if self.__is_outofbound(): self._app.remove_object(self)
-        if self._time > 300: self._app.remove_object(self)
+        if self.__is_outofbound(): self.destroy()
+        if self._time > 300: self.destroy()
 
     def __go_forward(self, theta):
         self._vel.x = 0
@@ -173,7 +173,7 @@ class Explode(GameObject):
         self._vel = Vector(0.0,0.0)
 
     def _control(self):
-        if self._time > 12: self._app.remove_object(self)
+        if self._time > 12: self.destroy()
 
 class Shot(GameObject):
     def __init__(self, app, pos, rot, anim):
@@ -186,8 +186,8 @@ class Shot(GameObject):
 
     def _control(self):
         self.__go_forward(self._rot)
-        if self.__is_outofbound(): self._app.remove_object(self)
-        if self._time > 300: self._app.remove_object(self)
+        if self.__is_outofbound(): self.destroy()
+        if self._time > 300: self.destroy()
 
     def __go_forward(self, theta):
         self._vel.x = 0
@@ -226,8 +226,8 @@ class EnemyZako(GameObject):
 
     def _control(self):
         self.__go_forward(self._rot)
-        if self.__is_outofbound(): self._app.remove_object(self)
-        if self._time > 600: self._app.remove_object(self)
+        if self.__is_outofbound(): self.destroy()
+        if self._time > 600: self.destroy()
         if self._time % 90 == 0:
             self.__shot(copy.copy(self._pos), self._rot)
 

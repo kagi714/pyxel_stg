@@ -1,0 +1,1 @@
+PLAYER_SPD = 1.0

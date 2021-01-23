@@ -3,6 +3,8 @@ import math
 import copy
 import pyxel
 
+import params as p
+
 #[[img, u, v, w, h, colkey], ...]
 BULLET_IMGS  = [[ 0,  0,  8,  2,  2,  0],[ 0,  4,  8,  2,  2,  0]]
 BULLET_TIMS  = [6,6]
@@ -249,10 +251,10 @@ class Player(GameObject):
     def _control(self):
         if self.__is_alive :
             vx, vy = 0.0, 0.0
-            if pyxel.btn(pyxel.KEY_A) : vx = -1.0
-            if pyxel.btn(pyxel.KEY_D) : vx =  1.0
-            if pyxel.btn(pyxel.KEY_W) : vy = -1.0
-            if pyxel.btn(pyxel.KEY_S) : vy =  1.0
+            if pyxel.btn(pyxel.KEY_A) : vx = -p.PLAYER_SPD
+            if pyxel.btn(pyxel.KEY_D) : vx =  p.PLAYER_SPD
+            if pyxel.btn(pyxel.KEY_W) : vy = -p.PLAYER_SPD
+            if pyxel.btn(pyxel.KEY_S) : vy =  p.PLAYER_SPD
             self._vel.x = vx
             self._vel.y = vy
 

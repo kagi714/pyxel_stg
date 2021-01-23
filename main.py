@@ -67,7 +67,6 @@ class Collision():
                 return True
         return False
 
-
 class Anim():
     def __init__(self, imgs, tims):
         if len(imgs) > 0 :

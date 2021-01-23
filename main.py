@@ -3,6 +3,8 @@ import math
 import copy
 import pyxel
 
+import params as p
+
 #[[img, u, v, w, h, colkey], ...]
 BULLET_IMGS  = [[ 0,  0,  8,  2,  2,  0],[ 0,  4,  8,  2,  2,  0]]
 BULLET_TIMS  = [6,6]
@@ -14,7 +16,7 @@ EXPLODE_IMGS = [
                 [ 0,  16,  8,  8,  8,  0],[ 0,  24,  8,  8,  8,  0],
                 [ 0,  32,  8,  8,  8,  0],[ 0,  40,  8,  8,  8,  0]
                ]
-EXPLODE_TIMS = [3, 3, 3, 3]
+EXPLODE_TIMS = [2, 2, 2, 2]
 ENEMY_IMGS   = [[ 0,  8, 56,  7,  7,  0]]
 ENEMY_TIMS   = [10]
 
@@ -65,7 +67,6 @@ class Collision():
                 return True
         return False
 
-
 class Anim():
     def __init__(self, imgs, tims):
         if len(imgs) > 0 :
@@ -95,12 +96,13 @@ class Anim():
 class GameObject():
     def __init__(self, app, pos, rot, anim):
         self._app = app
-        self._pos = pos   # 位置
-        self._rot = rot   # 角度
-        self._anim = anim # アニメーション
-        self._col = None  # 当たり判定
-        self._vel = None  # 速度
-        self._time = 0    # 時間
+        self._pos = pos    # 位置
+        self._rot = rot    # 角度
+        self._anim = anim  # アニメーション
+        self._col = None   # 当たり判定
+        self._vel = None   # 速度
+        self._time = 0     # 時間
+        self._alive = True # 生存
 
     def update(self):
         self._control()
@@ -124,6 +126,21 @@ class GameObject():
         """
         pass
 
+    def hurt(self, dmg):
+        """
+        ダメージを受ける処理
+
+        dmg : ダメージ値
+        """
+        pass
+
+    def destroy(self):
+        """
+        死亡時の処理
+        """
+        self._app.remove_object(self)
+        self._alive = False
+
     def _control(self):
         """
         毎フレーム行う処理
@@ -138,8 +155,8 @@ class Bullet(GameObject):
 
     def _control(self):
         self.__go_forward(self._rot)
-        if self.__is_outofbound(): self._app.remove_object(self)
-        if self._time > 300: self._app.remove_object(self)
+        if self.__is_outofbound(): self.destroy()
+        if self._time > 300: self.destroy()
 
     def __go_forward(self, theta):
         self._vel.x = 0
@@ -156,7 +173,7 @@ class Explode(GameObject):
         self._vel = Vector(0.0,0.0)
 
     def _control(self):
-        if self._time > 12: self._app.remove_object(self)
+        if self._time > 12: self.destroy()
 
 class Shot(GameObject):
     def __init__(self, app, pos, rot, anim):
@@ -164,14 +181,17 @@ class Shot(GameObject):
         self._col = Collision(self._pos, 2.0, 0xF0, self._on_hit)
         self._vel = Vector(0.0,0.0)
 
+    def hurt(self, dmg):
+        self.destroy()
+
     def _control(self):
         self.__go_forward(self._rot)
-        if self.__is_outofbound(): self._app.remove_object(self)
-        if self._time > 300: self._app.remove_object(self)
+        if self.__is_outofbound(): self.destroy()
+        if self._time > 300: self.destroy()
 
     def __go_forward(self, theta):
         self._vel.x = 0
-        self._vel.y = -1.5
+        self._vel.y = -p.SHOT_SPD
         self._vel.rotate(theta)
 
     def __is_outofbound(self):
@@ -184,7 +204,6 @@ class EnemyZako(GameObject):
         self._vel = Vector(0.0,0.0)
 
         self.__is_muteki = False
-        self.__is_alive = True
         self.__hp = 5
 
     def update(self):
@@ -194,22 +213,21 @@ class EnemyZako(GameObject):
         self._time += 1
 
     def _on_hit(self, obj):
-        if self.__is_alive:
+        if self._alive:
             if obj.get_hitbox().type != 0x22:
-                self.damage(1)
-                self._app.remove_object(obj)
+                self.hurt(1)
+                obj.hurt(0)
 
-    def damage(self, dmg):
+    def hurt(self, dmg):
         self.__hp -= dmg
         if self.__hp <= 0:
             self._app.new_object("Explode", self._pos, self._rot)
-            self._app.remove_object(self)
-            self.__is_alive = False
+            self.destroy()
 
     def _control(self):
         self.__go_forward(self._rot)
-        if self.__is_outofbound(): self._app.remove_object(self)
-        if self._time > 600: self._app.remove_object(self)
+        if self.__is_outofbound(): self.destroy()
+        if self._time > 600: self.destroy()
         if self._time % 90 == 0:
             self.__shot(copy.copy(self._pos), self._rot)
 
@@ -231,8 +249,7 @@ class Player(GameObject):
         self._col = Collision(self._pos, 3.0, 0x0F, self._on_hit)
         self._vel = Vector(0.0,0.0)
 
-        self.__is_muteki = False
-        self.__is_alive = True
+        self._muteki_time = 0
 
     def update(self):
         self._control()
@@ -241,23 +258,28 @@ class Player(GameObject):
         self._time += 1
 
     def _on_hit(self, obj):
-        if self.__is_alive :
-            self._app.new_object("Explode", self._pos, self._rot)
-            self._app.remove_object(self)
-            self.__is_alive = False
+        if self._alive & (self._muteki_time == 0):
+            self.hurt(1)
+
+    def hurt(self, dmg):
+        self._app.new_object("Explode", self._pos, self._rot)
+        #self.destroy()
+        self._muteki_time = 10
 
     def _control(self):
-        if self.__is_alive :
+        if self._alive :
             vx, vy = 0.0, 0.0
-            if pyxel.btn(pyxel.KEY_A) : vx = -1.0
-            if pyxel.btn(pyxel.KEY_D) : vx =  1.0
-            if pyxel.btn(pyxel.KEY_W) : vy = -1.0
-            if pyxel.btn(pyxel.KEY_S) : vy =  1.0
+            if pyxel.btn(pyxel.KEY_A) : vx = -p.PLAYER_SPD
+            if pyxel.btn(pyxel.KEY_D) : vx =  p.PLAYER_SPD
+            if pyxel.btn(pyxel.KEY_W) : vy = -p.PLAYER_SPD
+            if pyxel.btn(pyxel.KEY_S) : vy =  p.PLAYER_SPD
             self._vel.x = vx
             self._vel.y = vy
 
             if pyxel.btnp(pyxel.KEY_ENTER):
                 self.__shot(copy.copy(self._pos), self._rot)
+
+            if self._muteki_time > 0 : self._muteki_time -= 1
 
     def __shot(self, pos, rot):
         pos.y -= 2
@@ -291,14 +313,14 @@ class ObjectGenerator():
 
 class App():
     def __init__(self):
+        self.objs = []
+        self.guis = []   # unused
+        self.bg   = None # unused
+        self.__obj_generator = ObjectGenerator()
+
         pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
         pyxel.load("my_resource.pyxres")
-
-        self.__obj_generator = ObjectGenerator()
-        self.objs = []
-
         self.__game_init()
-
         pyxel.run(self.__update, self.__draw)
 
     def __game_init(self):

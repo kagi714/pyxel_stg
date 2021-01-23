@@ -97,12 +97,13 @@ class Anim():
 class GameObject():
     def __init__(self, app, pos, rot, anim):
         self._app = app
-        self._pos = pos   # 位置
-        self._rot = rot   # 角度
-        self._anim = anim # アニメーション
-        self._col = None  # 当たり判定
-        self._vel = None  # 速度
-        self._time = 0    # 時間
+        self._pos = pos    # 位置
+        self._rot = rot    # 角度
+        self._anim = anim  # アニメーション
+        self._col = None   # 当たり判定
+        self._vel = None   # 速度
+        self._time = 0     # 時間
+        self._alive = True # 生存
 
     def update(self):
         self._control()
@@ -186,7 +187,6 @@ class EnemyZako(GameObject):
         self._vel = Vector(0.0,0.0)
 
         self.__is_muteki = False
-        self.__is_alive = True
         self.__hp = 5
 
     def update(self):
@@ -196,7 +196,7 @@ class EnemyZako(GameObject):
         self._time += 1
 
     def _on_hit(self, obj):
-        if self.__is_alive:
+        if self._alive:
             if obj.get_hitbox().type != 0x22:
                 self.damage(1)
                 self._app.remove_object(obj)
@@ -206,7 +206,7 @@ class EnemyZako(GameObject):
         if self.__hp <= 0:
             self._app.new_object("Explode", self._pos, self._rot)
             self._app.remove_object(self)
-            self.__is_alive = False
+            self._alive = False
 
     def _control(self):
         self.__go_forward(self._rot)
@@ -233,8 +233,7 @@ class Player(GameObject):
         self._col = Collision(self._pos, 3.0, 0x0F, self._on_hit)
         self._vel = Vector(0.0,0.0)
 
-        self.__is_muteki = False
-        self.__is_alive = True
+        self._muteki_time = 0
 
     def update(self):
         self._control()
@@ -243,13 +242,13 @@ class Player(GameObject):
         self._time += 1
 
     def _on_hit(self, obj):
-        if self.__is_alive :
+        if self._alive :
             self._app.new_object("Explode", self._pos, self._rot)
             self._app.remove_object(self)
-            self.__is_alive = False
+            self._alive = False
 
     def _control(self):
-        if self.__is_alive :
+        if self._alive :
             vx, vy = 0.0, 0.0
             if pyxel.btn(pyxel.KEY_A) : vx = -p.PLAYER_SPD
             if pyxel.btn(pyxel.KEY_D) : vx =  p.PLAYER_SPD

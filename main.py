@@ -314,14 +314,14 @@ class ObjectGenerator():
 
 class App():
     def __init__(self):
+        self.objs = []
+        self.guis = []   # unused
+        self.bg   = None # unused
+        self.__obj_generator = ObjectGenerator()
+
         pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
         pyxel.load("my_resource.pyxres")
-
-        self.__obj_generator = ObjectGenerator()
-        self.objs = []
-
         self.__game_init()
-
         pyxel.run(self.__update, self.__draw)
 
     def __game_init(self):

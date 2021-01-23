@@ -216,7 +216,7 @@ class EnemyZako(GameObject):
         if self._alive:
             if obj.get_hitbox().type != 0x22:
                 self.hurt(1)
-                obj.hurt(1)
+                obj.hurt(0)
 
     def hurt(self, dmg):
         self.__hp -= dmg

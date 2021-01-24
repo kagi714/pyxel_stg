@@ -22,6 +22,9 @@ ENEMY_TIMS   = [10]
 NONE_IMGS    = [[ 0,  0,  0,  0,  0,  0]]
 NONE_TIMS    = [10]
 
+#未分類
+game_score = 0
+
 class Vector():
     """
     ２次元ベクトルクラス

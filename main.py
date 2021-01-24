@@ -19,6 +19,11 @@ EXPLODE_IMGS = [
 EXPLODE_TIMS = [2, 2, 2, 2]
 ENEMY_IMGS   = [[ 0,  8, 56,  7,  7,  0]]
 ENEMY_TIMS   = [10]
+NONE_IMGS    = [[ 0,  0,  0,  0,  0,  0]]
+NONE_TIMS    = [10]
+
+#未分類
+game_score = 0
 
 class Vector():
     """
@@ -50,16 +55,14 @@ class Collision():
     当たり判定用クラス
     """
 
-    def __init__(self, pos = None, siz=0.0, type=0x00, onhit_func=None):
+    def __init__(self, pos = None, siz=0.0, type=0x00):
         self.pos = pos
         self.size = siz
         self.type = type
-        self.__onhit = onhit_func
 
-    def update(self, objs):
+    def update(self, objs, onhit):
         for o in objs:
-            if self.__is_hit(o.get_hitbox()):
-                self.__onhit(o)
+            if self.__is_hit(o.get_hitbox()): onhit(o)
 
     def __is_hit(self, objcol):
         if self.type & objcol.type:
@@ -150,7 +153,7 @@ class GameObject():
 class Bullet(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 2.0, 0x01, self._on_hit)
+        self._col = Collision(self._pos, 2.0, 0x01)
         self._vel = Vector(0.0,1.3)
 
     def _control(self):
@@ -175,10 +178,27 @@ class Explode(GameObject):
     def _control(self):
         if self._time > 12: self.destroy()
 
+class BigExplode(GameObject):
+    def __init__(self, app, pos, rot, anim):
+        super().__init__(app, pos, rot, anim)
+        self._col = None
+        self._vel = Vector(0.0,0.0)
+        self.__expl_pos = Vector(0.0,0.0)
+
+    def _control(self):
+        self.__expl_pos.x = self._pos.x
+        self.__expl_pos.y = self._pos.y
+        self.__expl_pos.x += randint(-5, 5)
+        self.__expl_pos.y += randint(-5, 5)
+
+        if self._time % 5 == 0:
+            self._app.new_object("Explode", copy.copy(self.__expl_pos), self._rot)
+        if self._time > 20: self.destroy()
+
 class Shot(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 2.0, 0xF0, self._on_hit)
+        self._col = Collision(self._pos, 2.0, 0xF0)
         self._vel = Vector(0.0,0.0)
 
     def hurt(self, dmg):
@@ -200,7 +220,7 @@ class Shot(GameObject):
 class EnemyZako(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 4.0, 0x22, self._on_hit)
+        self._col = Collision(self._pos, 4.0, 0x22)
         self._vel = Vector(0.0,0.0)
 
         self.__is_muteki = False
@@ -208,7 +228,7 @@ class EnemyZako(GameObject):
 
     def update(self):
         self._control()
-        self._col.update(self._app.get_hitobjects(self))
+        self._col.update(self._app.get_hitobjects(self), self._on_hit)
         self._pos.update(self._vel)
         self._time += 1
 
@@ -246,14 +266,14 @@ class EnemyZako(GameObject):
 class Player(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 3.0, 0x0F, self._on_hit)
+        self._col = Collision(self._pos, 3.0, 0x0F)
         self._vel = Vector(0.0,0.0)
 
         self._muteki_time = 0
 
     def update(self):
         self._control()
-        self._col.update(self._app.get_hitobjects(self))
+        self._col.update(self._app.get_hitobjects(self), self._on_hit)
         self._pos.update(self._vel)
         self._time += 1
 
@@ -262,9 +282,10 @@ class Player(GameObject):
             self.hurt(1)
 
     def hurt(self, dmg):
-        self._app.new_object("Explode", self._pos, self._rot)
-        #self.destroy()
-        self._muteki_time = 10
+        if dmg > 0:
+            self._app.new_object("BigExplode", copy.copy(self._pos), self._rot)
+            #self.destroy()
+            self._muteki_time = 60
 
     def _control(self):
         if self._alive :
@@ -292,6 +313,7 @@ class ObjectGenerator():
         self.__obj_dict["Bullet"] = Bullet
         self.__obj_dict["Shot"] = Shot
         self.__obj_dict["Explode"] = Explode
+        self.__obj_dict["BigExplode"] = BigExplode
         self.__obj_dict["EnemyZako"] = EnemyZako
         
         self.__anim_dict = {}
@@ -299,6 +321,7 @@ class ObjectGenerator():
         self.__anim_dict["Bullet"] = Anim(BULLET_IMGS, BULLET_TIMS)
         self.__anim_dict["Shot"] = Anim(SHOT_IMGS, SHOT_TIMS)
         self.__anim_dict["Explode"] = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
+        self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,NONE_TIMS)
         self.__anim_dict["EnemyZako"] = Anim(ENEMY_IMGS, ENEMY_TIMS)
 
 
@@ -314,6 +337,7 @@ class ObjectGenerator():
 class App():
     def __init__(self):
         self.objs = []
+        self.player = None
         self.guis = []   # unused
         self.bg   = None # unused
         self.__obj_generator = ObjectGenerator()
@@ -324,7 +348,7 @@ class App():
         pyxel.run(self.__update, self.__draw)
 
     def __game_init(self):
-        self.new_object("Player", Vector(0.0, 0.0))
+        self.player = self.new_object("Player", Vector(0.0, 0.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
 
@@ -354,6 +378,12 @@ class App():
         オブジェクトを削除する
         """
         self.objs.remove(obj)
+
+    def get_player(self):
+        """
+        自機のGameObjectを返す
+        """
+        return self.player
 
     def get_hitobjects(self, obj):
         """

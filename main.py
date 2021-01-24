@@ -19,6 +19,8 @@ EXPLODE_IMGS = [
 EXPLODE_TIMS = [2, 2, 2, 2]
 ENEMY_IMGS   = [[ 0,  8, 56,  7,  7,  0]]
 ENEMY_TIMS   = [10]
+NONE_IMGS    = [[ 0,  0,  0,  0,  0,  0]]
+NONE_TIMS    = [10]
 
 class Vector():
     """
@@ -173,6 +175,23 @@ class Explode(GameObject):
     def _control(self):
         if self._time > 12: self.destroy()
 
+class BigExplode(GameObject):
+    def __init__(self, app, pos, rot, anim):
+        super().__init__(app, pos, rot, anim)
+        self._col = None
+        self._vel = Vector(0.0,0.0)
+        self.__expl_pos = Vector(0.0,0.0)
+
+    def _control(self):
+        self.__expl_pos.x = self._pos.x
+        self.__expl_pos.y = self._pos.y
+        self.__expl_pos.x += randint(-5, 5)
+        self.__expl_pos.y += randint(-5, 5)
+
+        if self._time % 5 == 0:
+            self._app.new_object("Explode", copy.copy(self.__expl_pos), self._rot)
+        if self._time > 20: self.destroy()
+
 class Shot(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
@@ -260,9 +279,10 @@ class Player(GameObject):
             self.hurt(1)
 
     def hurt(self, dmg):
-        self._app.new_object("Explode", self._pos, self._rot)
-        #self.destroy()
-        self._muteki_time = 60
+        if dmg > 0:
+            self._app.new_object("BigExplode", copy.copy(self._pos), self._rot)
+            #self.destroy()
+            self._muteki_time = 60
 
     def _control(self):
         if self._alive :
@@ -290,6 +310,7 @@ class ObjectGenerator():
         self.__obj_dict["Bullet"] = Bullet
         self.__obj_dict["Shot"] = Shot
         self.__obj_dict["Explode"] = Explode
+        self.__obj_dict["BigExplode"] = BigExplode
         self.__obj_dict["EnemyZako"] = EnemyZako
         
         self.__anim_dict = {}
@@ -297,6 +318,7 @@ class ObjectGenerator():
         self.__anim_dict["Bullet"] = Anim(BULLET_IMGS, BULLET_TIMS)
         self.__anim_dict["Shot"] = Anim(SHOT_IMGS, SHOT_TIMS)
         self.__anim_dict["Explode"] = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
+        self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,NONE_TIMS)
         self.__anim_dict["EnemyZako"] = Anim(ENEMY_IMGS, ENEMY_TIMS)
 
 

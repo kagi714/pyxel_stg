@@ -309,20 +309,20 @@ class Player(GameObject):
 class ObjectGenerator():
     def __init__(self,):
         self.__obj_dict = {}
-        self.__obj_dict["Player"] = Player
-        self.__obj_dict["Bullet"] = Bullet
-        self.__obj_dict["Shot"] = Shot
-        self.__obj_dict["Explode"] = Explode
+        self.__obj_dict["Player"]     = Player
+        self.__obj_dict["Bullet"]     = Bullet
+        self.__obj_dict["Shot"]       = Shot
+        self.__obj_dict["Explode"]    = Explode
         self.__obj_dict["BigExplode"] = BigExplode
-        self.__obj_dict["EnemyZako"] = EnemyZako
+        self.__obj_dict["EnemyZako"]  = EnemyZako
         
         self.__anim_dict = {}
-        self.__anim_dict["Player"] = Anim(SHIP_IMGS, SHIP_TIMS)
-        self.__anim_dict["Bullet"] = Anim(BULLET_IMGS, BULLET_TIMS)
-        self.__anim_dict["Shot"] = Anim(SHOT_IMGS, SHOT_TIMS)
-        self.__anim_dict["Explode"] = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
-        self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,NONE_TIMS)
-        self.__anim_dict["EnemyZako"] = Anim(ENEMY_IMGS, ENEMY_TIMS)
+        self.__anim_dict["Player"]     = Anim(SHIP_IMGS,    SHIP_TIMS)
+        self.__anim_dict["Bullet"]     = Anim(BULLET_IMGS,  BULLET_TIMS)
+        self.__anim_dict["Shot"]       = Anim(SHOT_IMGS,    SHOT_TIMS)
+        self.__anim_dict["Explode"]    = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
+        self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,    NONE_TIMS)
+        self.__anim_dict["EnemyZako"]  = Anim(ENEMY_IMGS,   ENEMY_TIMS)
 
 
     def generate(self, app, type, vec = Vector(0.0,0.0) ,theta = 0):

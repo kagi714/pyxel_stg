@@ -146,11 +146,17 @@ class GameObject():
         return self._children
 
     def check_hit(self, col, onhit):
+        """
+        当たり判定チェック
+
+        col   : チェックする当たり判定
+        onhit : 当たっていたときに実行する処理
+        """
         if self._col is not None:
             if self._col.is_hit(col): onhit(self)
 
-        for c in self._children:
-            c.check_hit(col, onhit)
+        # 子オブジェクトも同様に判定を行う
+        for c in self._children: c.check_hit(col, onhit)
 
     def _on_hit(self, obj):
         """
@@ -174,6 +180,7 @@ class GameObject():
         """
         self._app.remove_object(self)
         self._alive = False
+        for c in self._children: c.destroy()
 
     def _control(self):
         """

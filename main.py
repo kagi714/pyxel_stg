@@ -61,12 +61,29 @@ class Collision():
         self.type = type
 
     def update(self, objs, onhit):
-        for o in objs:
-            if self.__is_hit(o.get_hitbox()): onhit(o)
+        """
+        毎フレームごとの処理(当たり判定チェック)を行う
+        objs  : チェックするオブジェクト
+        onhit : ヒットしたときに実行する処理
+        """
+        self.__check_collision(objs, onhit)
 
-    def __is_hit(self, objcol):
-        if self.type & objcol.type:
-            if self.pos.distance(objcol.pos) < (self.size + objcol.size):
+    def __check_collision(self, objs, onhit):
+        """
+        当たり判定のチェックを行う
+
+        objs  : チェックするオブジェクト
+        onhit : ヒットしたときに実行する処理
+        """
+        for o in objs:
+            o.check_hit(self, onhit)
+
+    def is_hit(self, col):
+        """
+        当たり判定同士が衝突したかどうかチェックする
+        """
+        if self.type & col.type:
+            if self.pos.distance(col.pos) < (self.size + col.size):
                 return True
         return False
 
@@ -106,6 +123,7 @@ class GameObject():
         self._vel = None   # 速度
         self._time = 0     # 時間
         self._alive = True # 生存
+        self._children = []# 子オブジェクト
 
     def update(self):
         self._control()
@@ -120,6 +138,19 @@ class GameObject():
         当たり判定情報を返す
         """
         return self._col
+
+    def get_children(self):
+        """
+        子オブジェクト配列を返す
+        """
+        return self._children
+
+    def check_hit(self, col, onhit):
+        if self._col is not None:
+            if self._col.is_hit(col): onhit(self)
+
+        for c in self._children:
+            c.check_hit(col, onhit)
 
     def _on_hit(self, obj):
         """
@@ -392,6 +423,13 @@ class App():
         exclude_self  = lambda o : o is not obj
         is_has_hitbox = lambda o : o.get_hitbox() is not None
 
-        return filter(lambda o : exclude_self(o) & is_has_hitbox(o), self.objs)
+        #return filter(lambda o : exclude_self(o) & is_has_hitbox(o), self.objs)
+        return filter(lambda o : exclude_self(o), self.objs)
+
+    def get_objects(self, obj):
+        """
+        当たり判定の処理に必要なオブジェクトのリストを得る
+        """
+        return filter(lambda o : o is not obj, self.objs)
 
 App()

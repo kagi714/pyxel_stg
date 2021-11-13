@@ -63,6 +63,7 @@ class Collision():
     def update(self, objs, onhit):
         """
         毎フレームごとの処理(当たり判定チェック)を行う
+
         objs  : チェックするオブジェクト
         onhit : ヒットしたときに実行する処理
         """
@@ -424,16 +425,6 @@ class App():
         return self.player
 
     def get_hitobjects(self, obj):
-        """
-        当たり判定の処理に必要なオブジェクトのリストを得る
-        """
-        exclude_self  = lambda o : o is not obj
-        is_has_hitbox = lambda o : o.get_hitbox() is not None
-
-        #return filter(lambda o : exclude_self(o) & is_has_hitbox(o), self.objs)
-        return filter(lambda o : exclude_self(o), self.objs)
-
-    def get_objects(self, obj):
         """
         当たり判定の処理に必要なオブジェクトのリストを得る
         """

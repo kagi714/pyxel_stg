@@ -377,11 +377,13 @@ class Main():
     def __init__(self):
         self.__scene = SceneTest(self)
         self.__score = 0
+        self.__time = 0
         pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
         pyxel.load("my_resource.pyxres")
         pyxel.run(self.__update, self.__draw)
 
     def __update(self):
+        self.__time += 1
         self.__scene.update()
 
     def __draw(self):
@@ -394,20 +396,20 @@ class SceneBase():
 
     def __init__(self, main):
         self.__main = main
-        self.objs = []
         self.player = None
-        self.guis = []   # unused
+        self.objs = []
+        self.guis = []
         self.bg   = None # unused
         self.__obj_generator = ObjectGenerator()
 
     def update(self):
-        for o in self.objs :
-            o.update()
+        for o in self.objs : o.update()
+        for g in self.guis : g.update() # GUIの更新
 
     def draw(self):
         pyxel.cls(0)
-        for o in self.objs :
-            o.draw()
+        for o in self.objs : o.draw() # 
+        for g in self.guis : g.draw() # GUIの描画
 
     def new_object(self, type, vec = Vector(0.0,0.0) ,theta = 0):
         """

@@ -56,17 +56,35 @@ class Collision():
     """
 
     def __init__(self, pos = None, siz=0.0, type=0x00):
-        self.pos = pos
-        self.size = siz
-        self.type = type
+        self.pos  = pos  # 位置
+        self.size = siz  # 判定の大きさ(半径)
+        self.type = type # 判定の種類
 
     def update(self, objs, onhit):
-        for o in objs:
-            if self.__is_hit(o.get_hitbox()): onhit(o)
+        """
+        毎フレームごとの処理(当たり判定チェック)を行う
 
-    def __is_hit(self, objcol):
-        if self.type & objcol.type:
-            if self.pos.distance(objcol.pos) < (self.size + objcol.size):
+        objs  : チェックするオブジェクト
+        onhit : ヒットしたときに実行する処理
+        """
+        self.__check_collision(objs, onhit)
+
+    def __check_collision(self, objs, onhit):
+        """
+        当たり判定のチェックを行う
+
+        objs  : チェックするオブジェクト
+        onhit : ヒットしたときに実行する処理
+        """
+        for o in objs:
+            o.check_hit(self, onhit)
+
+    def is_hit(self, col):
+        """
+        当たり判定同士が衝突したかどうかチェックする
+        """
+        if self.type & col.type:
+            if self.pos.distance(col.pos) < (self.size + col.size):
                 return True
         return False
 
@@ -106,6 +124,7 @@ class GameObject():
         self._vel = None   # 速度
         self._time = 0     # 時間
         self._alive = True # 生存
+        self._children = []# 子オブジェクト
 
     def update(self):
         self._control()
@@ -120,6 +139,25 @@ class GameObject():
         当たり判定情報を返す
         """
         return self._col
+
+    def get_children(self):
+        """
+        子オブジェクト配列を返す
+        """
+        return self._children
+
+    def check_hit(self, col, onhit):
+        """
+        当たり判定チェック
+
+        col   : チェックする当たり判定
+        onhit : 当たっていたときに実行する処理
+        """
+        if self._col is not None:
+            if self._col.is_hit(col): onhit(self)
+
+        # 子オブジェクトも同様に判定を行う
+        for c in self._children: c.check_hit(col, onhit)
 
     def _on_hit(self, obj):
         """
@@ -143,6 +181,7 @@ class GameObject():
         """
         self._app.remove_object(self)
         self._alive = False
+        for c in self._children: c.destroy()
 
     def _control(self):
         """
@@ -309,20 +348,20 @@ class Player(GameObject):
 class ObjectGenerator():
     def __init__(self,):
         self.__obj_dict = {}
-        self.__obj_dict["Player"] = Player
-        self.__obj_dict["Bullet"] = Bullet
-        self.__obj_dict["Shot"] = Shot
-        self.__obj_dict["Explode"] = Explode
+        self.__obj_dict["Player"]     = Player
+        self.__obj_dict["Bullet"]     = Bullet
+        self.__obj_dict["Shot"]       = Shot
+        self.__obj_dict["Explode"]    = Explode
         self.__obj_dict["BigExplode"] = BigExplode
-        self.__obj_dict["EnemyZako"] = EnemyZako
+        self.__obj_dict["EnemyZako"]  = EnemyZako
         
         self.__anim_dict = {}
-        self.__anim_dict["Player"] = Anim(SHIP_IMGS, SHIP_TIMS)
-        self.__anim_dict["Bullet"] = Anim(BULLET_IMGS, BULLET_TIMS)
-        self.__anim_dict["Shot"] = Anim(SHOT_IMGS, SHOT_TIMS)
-        self.__anim_dict["Explode"] = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
-        self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,NONE_TIMS)
-        self.__anim_dict["EnemyZako"] = Anim(ENEMY_IMGS, ENEMY_TIMS)
+        self.__anim_dict["Player"]     = Anim(SHIP_IMGS,    SHIP_TIMS)
+        self.__anim_dict["Bullet"]     = Anim(BULLET_IMGS,  BULLET_TIMS)
+        self.__anim_dict["Shot"]       = Anim(SHOT_IMGS,    SHOT_TIMS)
+        self.__anim_dict["Explode"]    = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
+        self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,    NONE_TIMS)
+        self.__anim_dict["EnemyZako"]  = Anim(ENEMY_IMGS,   ENEMY_TIMS)
 
 
     def generate(self, app, type, vec = Vector(0.0,0.0) ,theta = 0):
@@ -389,9 +428,6 @@ class App():
         """
         当たり判定の処理に必要なオブジェクトのリストを得る
         """
-        exclude_self  = lambda o : o is not obj
-        is_has_hitbox = lambda o : o.get_hitbox() is not None
-
-        return filter(lambda o : exclude_self(o) & is_has_hitbox(o), self.objs)
+        return filter(lambda o : o is not obj, self.objs)
 
 App()

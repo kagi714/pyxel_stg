@@ -156,6 +156,18 @@ class GameObject():
         # 子オブジェクトも同様に判定を行う
         for c in self._children: c.check_hit(col, onhit)
 
+    def _go_forward(self, vec, theta):
+        """
+        GameObjectの速度ベクトルをセットする
+
+        vec    : ベクトル
+        thetha : vecを回転する角度[rad]
+        """
+        #vec.rotate(theta)
+        self._vel.x = vec.x
+        self._vel.y = vec.y
+        self._vel.rotate(theta)
+
     def _on_hit(self, obj):
         """
         何かに衝突した時の処理
@@ -192,15 +204,12 @@ class Bullet(GameObject):
         self._col = Collision(self._pos, 2.0, 0x01)
         self._vel = Vector(0.0,1.3)
 
+        self.__spd = Vector(0.0, 0.3)
+
     def _control(self):
-        self.__go_forward(self._rot)
+        self._go_forward(self.__spd, self._rot)
         if self.__is_outofbound(): self.destroy()
         if self._time > 300: self.destroy()
-
-    def __go_forward(self, theta):
-        self._vel.x = 0
-        self._vel.y = 0.3
-        self._vel.rotate(theta)
 
     def __is_outofbound(self):
         return not self._pos.is_in(0, 0, 80, 60)
@@ -237,18 +246,15 @@ class Shot(GameObject):
         self._col = Collision(self._pos, 2.0, 0xF0)
         self._vel = Vector(0.0,0.0)
 
+        self.__spd = Vector(0.0,-p.SHOT_SPD)
+
     def hurt(self, dmg):
         self.destroy()
 
     def _control(self):
-        self.__go_forward(self._rot)
+        self._go_forward(self.__spd, self._rot)
         if self.__is_outofbound(): self.destroy()
         if self._time > 300: self.destroy()
-
-    def __go_forward(self, theta):
-        self._vel.x = 0
-        self._vel.y = -p.SHOT_SPD
-        self._vel.rotate(theta)
 
     def __is_outofbound(self):
         return not self._pos.is_in(0, 0, 80, 60)
@@ -259,6 +265,7 @@ class EnemyZako(GameObject):
         self._col = Collision(self._pos, 4.0, 0x22)
         self._vel = Vector(0.0,0.0)
 
+        self.__spd = Vector(0.0,0.1)
         self.__is_muteki = False
         self.__hp = 5
 
@@ -281,16 +288,11 @@ class EnemyZako(GameObject):
             self.destroy()
 
     def _control(self):
-        self.__go_forward(self._rot)
+        self._go_forward(self.__spd, self._rot)
         if self.__is_outofbound(): self.destroy()
         if self._time > 600: self.destroy()
         if self._time % 90 == 0:
             self.__shot(copy.copy(self._pos), self._rot)
-
-    def __go_forward(self, theta):
-        self._vel.x = 0
-        self._vel.y = 0.1
-        self._vel.rotate(theta)
 
     def __is_outofbound(self):
         return not self._pos.is_in(0, 0, 80, 60)
@@ -340,7 +342,9 @@ class Player(GameObject):
 
     def __shot(self, pos, rot):
         pos.y -= 2
-        self._app.new_object("Shot", pos, rot)
+        self._app.new_object("Shot", copy.copy(self._pos), rot)
+        self._app.new_object("Shot", copy.copy(self._pos), rot - math.pi/6.0)
+        self._app.new_object("Shot", copy.copy(self._pos), rot + math.pi/6.0)
 
 class ObjectGenerator():
     def __init__(self,):

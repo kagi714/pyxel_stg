@@ -22,9 +22,6 @@ ENEMY_TIMS   = [10]
 NONE_IMGS    = [[ 0,  0,  0,  0,  0,  0]]
 NONE_TIMS    = [10]
 
-#未分類
-game_score = 0
-
 class Vector():
     """
     ２次元ベクトルクラス
@@ -116,7 +113,7 @@ class Anim():
 
 class GameObject():
     def __init__(self, app, pos, rot, anim):
-        self._app = app
+        self._app = app    # scene
         self._pos = pos    # 位置
         self._rot = rot    # 角度
         self._anim = anim  # アニメーション
@@ -363,7 +360,6 @@ class ObjectGenerator():
         self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,    NONE_TIMS)
         self.__anim_dict["EnemyZako"]  = Anim(ENEMY_IMGS,   ENEMY_TIMS)
 
-
     def generate(self, app, type, vec = Vector(0.0,0.0) ,theta = 0):
         obj = None
 
@@ -373,29 +369,38 @@ class ObjectGenerator():
 
         return obj
 
-class App():
+class Main():
     def __init__(self):
+        self.__scene = SceneTest(self)
+        self.__score = 0
+        pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
+        pyxel.load("my_resource.pyxres")
+        pyxel.run(self.__update, self.__draw)
+
+    def __update(self):
+        self.__scene.update()
+
+    def __draw(self):
+        self.__scene.draw()
+
+class SceneBase():
+    """
+    オブジェクトの管理(生成・制御・削除)を行うクラス
+    """
+
+    def __init__(self, main):
+        self.__main = main
         self.objs = []
         self.player = None
         self.guis = []   # unused
         self.bg   = None # unused
         self.__obj_generator = ObjectGenerator()
 
-        pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
-        pyxel.load("my_resource.pyxres")
-        self.__game_init()
-        pyxel.run(self.__update, self.__draw)
-
-    def __game_init(self):
-        self.player = self.new_object("Player", Vector(0.0, 0.0))
-        self.new_object("EnemyZako", Vector(40.0, 10.0))
-        self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
-
-    def __update(self):
+    def update(self):
         for o in self.objs :
             o.update()
 
-    def __draw(self):
+    def draw(self):
         pyxel.cls(0)
         for o in self.objs :
             o.draw()
@@ -430,4 +435,11 @@ class App():
         """
         return filter(lambda o : o is not obj, self.objs)
 
-App()
+class SceneTest(SceneBase):
+    def __init__(self, main):
+        super().__init__(main)
+        self.player = self.new_object("Player", Vector(0.0, 0.0))
+        self.new_object("EnemyZako", Vector(40.0, 10.0))
+        self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
+
+Main()

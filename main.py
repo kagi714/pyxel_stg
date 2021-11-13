@@ -56,9 +56,9 @@ class Collision():
     """
 
     def __init__(self, pos = None, siz=0.0, type=0x00):
-        self.pos = pos
-        self.size = siz
-        self.type = type
+        self.pos  = pos  # 位置
+        self.size = siz  # 判定の大きさ(半径)
+        self.type = type # 判定の種類
 
     def update(self, objs, onhit):
         """

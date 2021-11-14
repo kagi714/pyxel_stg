@@ -36,6 +36,9 @@ class Vector():
         self.x += vel.x
         self.y += vel.y
 
+    def draw(self, color = 0):
+        pass
+
     def rotate(self, theta):
         x, y = self.x, self.y
         self.x = x * math.cos(theta) - y * math.sin(theta)
@@ -65,6 +68,9 @@ class Collision():
         onhit : ヒットしたときに実行する処理
         """
         self.__check_collision(objs, onhit)
+
+    def draw(self, color = 0):
+        pyxel.circ(self.pos.x, self.pos.y, self.size, color)
 
     def __check_collision(self, objs, onhit):
         """
@@ -130,6 +136,10 @@ class GameObject():
 
     def draw(self):
         self._anim.draw(self._pos)
+
+        # for debug
+        #if self._time % 2 == 0 : self._col.draw(2)
+        #if self._time % 2 == 1 : self._vdl.draw(self._pos)
         
     def get_hitbox(self):
         """

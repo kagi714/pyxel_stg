@@ -138,8 +138,8 @@ class GameObject():
         self._anim.draw(self._pos)
 
         # for debug
-        #if self._time % 2 == 0 : self._col.draw(2)
-        #if self._time % 2 == 1 : self._vdl.draw(self._pos)
+        #if (self._time % 2 == 0) & (self._col is not None): self._col.draw(2)
+        #if self._time % 2 == 1 : self._vel.draw(self._pos)
         
     def get_hitbox(self):
         """
@@ -211,7 +211,7 @@ class GameObject():
 class Bullet(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 2.0, 0x01)
+        self._col = Collision(self._pos, 1.0, 0x01)
         self._vel = Vector(0.0,1.3)
 
         self.__spd = Vector(0.0, 0.3)
@@ -272,7 +272,7 @@ class Shot(GameObject):
 class EnemyZako(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 4.0, 0x22)
+        self._col = Collision(self._pos, 3.0, 0x22)
         self._vel = Vector(0.0,0.0)
 
         self.__spd = Vector(0.0,0.1)
@@ -314,7 +314,7 @@ class EnemyZako(GameObject):
 class Player(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
-        self._col = Collision(self._pos, 3.0, 0x0F)
+        self._col = Collision(self._pos, 2.0, 0x0F)
         self._vel = Vector(0.0,0.0)
 
         self._muteki_time = 0

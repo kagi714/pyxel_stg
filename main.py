@@ -222,7 +222,7 @@ class Bullet(GameObject):
         if self._time > 300: self.destroy()
 
     def __is_outofbound(self):
-        return not self._pos.is_in(0, 0, 80, 60)
+        return not self._pos.is_in(0, 0, 80, 72)
 
 class Explode(GameObject):
     def __init__(self, app, pos, rot, anim):
@@ -267,7 +267,7 @@ class Shot(GameObject):
         if self._time > 300: self.destroy()
 
     def __is_outofbound(self):
-        return not self._pos.is_in(0, 0, 80, 60)
+        return not self._pos.is_in(0, 0, 80, 72)
 
 class EnemyZako(GameObject):
     def __init__(self, app, pos, rot, anim):
@@ -305,7 +305,7 @@ class EnemyZako(GameObject):
             self.__shot(copy.copy(self._pos), self._rot)
 
     def __is_outofbound(self):
-        return not self._pos.is_in(0, 0, 80, 60)
+        return not self._pos.is_in(0, 0, 80, 72)
 
     def __shot(self, pos, rot):
         pos.y -= 2
@@ -388,7 +388,12 @@ class Main():
         self.__scene = SceneTest(self)
         self.__score = 0
         self.__time = 0
-        pyxel.init(80, 60, fps=60, quit_key=pyxel.KEY_ESCAPE)
+        pyxel.init(
+            width    = 80,
+            height   = 72,
+            fps      = 60, 
+            quit_key = pyxel.KEY_ESCAPE
+            )
         pyxel.load("my_resource.pyxres")
         pyxel.run(self.__update, self.__draw)
 

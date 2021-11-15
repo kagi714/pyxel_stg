@@ -269,6 +269,14 @@ class Shot(GameObject):
     def __is_outofbound(self):
         return not self._pos.is_in(0, 0, 80, 72)
 
+class GuiTest(GameObject):
+    def __init__(self, app, pos, rot, anim):
+        super().__init__(app, pos, rot, anim)
+        self._vel = Vector(0.0,0.0)
+
+    def draw(self):
+        pyxel.rect(self._pos.x, self._pos.y, 12, 72, 7)
+
 class EnemyZako(GameObject):
     def __init__(self, app, pos, rot, anim):
         super().__init__(app, pos, rot, anim)
@@ -365,6 +373,7 @@ class ObjectGenerator():
         self.__obj_dict["Explode"]    = Explode
         self.__obj_dict["BigExplode"] = BigExplode
         self.__obj_dict["EnemyZako"]  = EnemyZako
+        self.__obj_dict["GuiTest"]    = GuiTest
         
         self.__anim_dict = {}
         self.__anim_dict["Player"]     = Anim(SHIP_IMGS,    SHIP_TIMS)
@@ -373,6 +382,7 @@ class ObjectGenerator():
         self.__anim_dict["Explode"]    = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
         self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,    NONE_TIMS)
         self.__anim_dict["EnemyZako"]  = Anim(ENEMY_IMGS,   ENEMY_TIMS)
+        self.__anim_dict["GuiTest"]    = None
 
     def generate(self, app, type, vec = Vector(0.0,0.0) ,theta = 0):
         obj = None
@@ -456,11 +466,25 @@ class SceneBase():
         """
         return filter(lambda o : o is not obj, self.objs)
 
+    def new_gui(self, type, vec = Vector(0.0,0.0) ,theta = 0):
+        """
+        GUIを生成する
+
+        type  : オブジェクトの種類(string型)
+        vec   : オブジェクトの初期位置
+        theta : オブジェクトの初期角度
+        """
+        obj = self.__obj_generator.generate(self, type, vec, theta)
+        if obj is not None : self.guis.append(obj)
+        return obj
+
 class SceneTest(SceneBase):
     def __init__(self, main):
         super().__init__(main)
         self.player = self.new_object("Player", Vector(0.0, 0.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0))
         self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
+        self.new_gui("GuiTest", Vector(0.0, 0.0))
+        self.new_gui("GuiTest", Vector(68.0, 0.0))
 
 Main()

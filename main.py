@@ -2,6 +2,7 @@ from random import randint
 import math
 import copy
 import pyxel
+from enum import Enum, auto
 
 import params as p
 
@@ -339,8 +340,7 @@ class Player(GameObject):
 
     def hurt(self, dmg):
         if dmg > 0:
-            self._app.new_object("BigExplode", copy.copy(self._pos), self._rot)
-            #self.destroy()
+            self._app.new_object(ObjectType.BIG_EXPLODE, copy.copy(self._pos), self._rot)
             self._muteki_time = 60
 
     def _control(self):
@@ -360,20 +360,30 @@ class Player(GameObject):
 
     def __shot(self, pos, rot):
         pos.y -= 2
-        self._app.new_object("Shot", copy.copy(self._pos), rot)
-        self._app.new_object("Shot", copy.copy(self._pos), rot - math.pi/6.0)
-        self._app.new_object("Shot", copy.copy(self._pos), rot + math.pi/6.0)
+        self._app.new_object(ObjectType.SHOT, copy.copy(self._pos), rot)
+        self._app.new_object(ObjectType.SHOT, copy.copy(self._pos), rot - math.pi/6.0)
+        self._app.new_object(ObjectType.SHOT, copy.copy(self._pos), rot + math.pi/6.0)
+
+class ObjectType(Enum):
+    """ゲームオブジェクトの種類を定義するEnum"""
+    PLAYER = auto()
+    BULLET = auto()
+    SHOT = auto()
+    EXPLODE = auto()
+    BIG_EXPLODE = auto()
+    ENEMY_ZAKO = auto()
+    GUI_TEST = auto()
 
 class ObjectGenerator():
     # オブジェクトの種類を定義
     OBJECT_TYPES = {
-        "Player": (Player, "SHIP"),
-        "Bullet": (Bullet, "BULLET"), 
-        "Shot": (Shot, "SHOT"),
-        "Explode": (Explode, "EXPLODE"),
-        "BigExplode": (BigExplode, "NONE"),
-        "EnemyZako": (EnemyZako, "ENEMY"),
-        "GuiTest": (GuiTest, None)
+        ObjectType.PLAYER: (Player, "SHIP"),
+        ObjectType.BULLET: (Bullet, "BULLET"), 
+        ObjectType.SHOT: (Shot, "SHOT"),
+        ObjectType.EXPLODE: (Explode, "EXPLODE"),
+        ObjectType.BIG_EXPLODE: (BigExplode, "NONE"),
+        ObjectType.ENEMY_ZAKO: (EnemyZako, "ENEMY"),
+        ObjectType.GUI_TEST: (GuiTest, None)
     }
 
     def __init__(self):
@@ -381,30 +391,30 @@ class ObjectGenerator():
         self.__anim_dict = {}
         
         # オブジェクトと対応するアニメーションを初期化
-        for obj_name, (obj_class, anim_type) in self.OBJECT_TYPES.items():
-            self.__obj_dict[obj_name] = obj_class
+        for obj_type, (obj_class, anim_type) in self.OBJECT_TYPES.items():
+            self.__obj_dict[obj_type] = obj_class
             if anim_type:
                 imgs = globals()[f"{anim_type}_IMGS"]
                 tims = globals()[f"{anim_type}_TIMS"]
-                self.__anim_dict[obj_name] = Anim(imgs, tims)
+                self.__anim_dict[obj_type] = Anim(imgs, tims)
             else:
-                self.__anim_dict[obj_name] = None
+                self.__anim_dict[obj_type] = None
 
-    def generate(self, app, type, vec=Vector(0.0, 0.0), theta=0):
+    def generate(self, app, obj_type: ObjectType, vec=Vector(0.0, 0.0), theta=0):
         """
         指定された種類のオブジェクトを生成する
         
         Args:
             app: アプリケーションインスタンス
-            type: オブジェクトの種類
+            obj_type: オブジェクトの種類（ObjectType enum）
             vec: 初期位置ベクトル
             theta: 初期角度
             
         Returns:
             生成されたオブジェクト。種類が不明な場合はNone
         """
-        if type in self.__obj_dict:
-            return self.__obj_dict[type](app, vec, theta, self.__anim_dict[type])
+        if obj_type in self.__obj_dict:
+            return self.__obj_dict[obj_type](app, vec, theta, self.__anim_dict[obj_type])
         return None
 
 class Main():
@@ -495,10 +505,10 @@ class SceneBase():
 class SceneTest(SceneBase):
     def __init__(self, main):
         super().__init__(main)
-        self.player = self.new_object("Player", Vector(0.0, 0.0))
-        self.new_object("EnemyZako", Vector(40.0, 10.0))
-        self.new_object("EnemyZako", Vector(40.0, 10.0), -math.pi/6.0)
-        self.new_gui("GuiTest", Vector(0.0, 0.0))
-        self.new_gui("GuiTest", Vector(68.0, 0.0))
+        self.player = self.new_object(ObjectType.PLAYER, Vector(0.0, 0.0))
+        self.new_object(ObjectType.ENEMY_ZAKO, Vector(40.0, 10.0))
+        self.new_object(ObjectType.ENEMY_ZAKO, Vector(40.0, 10.0), -math.pi/6.0)
+        self.new_gui(ObjectType.GUI_TEST, Vector(0.0, 0.0))
+        self.new_gui(ObjectType.GUI_TEST, Vector(68.0, 0.0))
 
 Main()

@@ -365,33 +365,47 @@ class Player(GameObject):
         self._app.new_object("Shot", copy.copy(self._pos), rot + math.pi/6.0)
 
 class ObjectGenerator():
-    def __init__(self,):
+    # オブジェクトの種類を定義
+    OBJECT_TYPES = {
+        "Player": (Player, "SHIP"),
+        "Bullet": (Bullet, "BULLET"), 
+        "Shot": (Shot, "SHOT"),
+        "Explode": (Explode, "EXPLODE"),
+        "BigExplode": (BigExplode, "NONE"),
+        "EnemyZako": (EnemyZako, "ENEMY"),
+        "GuiTest": (GuiTest, None)
+    }
+
+    def __init__(self):
         self.__obj_dict = {}
-        self.__obj_dict["Player"]     = Player
-        self.__obj_dict["Bullet"]     = Bullet
-        self.__obj_dict["Shot"]       = Shot
-        self.__obj_dict["Explode"]    = Explode
-        self.__obj_dict["BigExplode"] = BigExplode
-        self.__obj_dict["EnemyZako"]  = EnemyZako
-        self.__obj_dict["GuiTest"]    = GuiTest
-        
         self.__anim_dict = {}
-        self.__anim_dict["Player"]     = Anim(SHIP_IMGS,    SHIP_TIMS)
-        self.__anim_dict["Bullet"]     = Anim(BULLET_IMGS,  BULLET_TIMS)
-        self.__anim_dict["Shot"]       = Anim(SHOT_IMGS,    SHOT_TIMS)
-        self.__anim_dict["Explode"]    = Anim(EXPLODE_IMGS, EXPLODE_TIMS)
-        self.__anim_dict["BigExplode"] = Anim(NONE_IMGS,    NONE_TIMS)
-        self.__anim_dict["EnemyZako"]  = Anim(ENEMY_IMGS,   ENEMY_TIMS)
-        self.__anim_dict["GuiTest"]    = None
+        
+        # オブジェクトと対応するアニメーションを初期化
+        for obj_name, (obj_class, anim_type) in self.OBJECT_TYPES.items():
+            self.__obj_dict[obj_name] = obj_class
+            if anim_type:
+                imgs = globals()[f"{anim_type}_IMGS"]
+                tims = globals()[f"{anim_type}_TIMS"]
+                self.__anim_dict[obj_name] = Anim(imgs, tims)
+            else:
+                self.__anim_dict[obj_name] = None
 
-    def generate(self, app, type, vec = Vector(0.0,0.0) ,theta = 0):
-        obj = None
-
+    def generate(self, app, type, vec=Vector(0.0, 0.0), theta=0):
+        """
+        指定された種類のオブジェクトを生成する
+        
+        Args:
+            app: アプリケーションインスタンス
+            type: オブジェクトの種類
+            vec: 初期位置ベクトル
+            theta: 初期角度
+            
+        Returns:
+            生成されたオブジェクト。種類が不明な場合はNone
+        """
         if type in self.__obj_dict:
-            anim = self.__anim_dict[type]
-            obj = self.__obj_dict[type](app, vec, theta, anim)
-
-        return obj
+            return self.__obj_dict[type](app, vec, theta, self.__anim_dict[type])
+        return None
 
 class Main():
     def __init__(self):

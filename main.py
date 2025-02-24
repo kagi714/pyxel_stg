@@ -353,7 +353,7 @@ class Player(GameObject):
             self._vel.x = vx
             self._vel.y = vy
 
-            if pyxel.btnp(pyxel.KEY_ENTER):
+            if pyxel.btnp(pyxel.KEY_RETURN):
                 self.__shot(copy.copy(self._pos), self._rot)
 
             if self._muteki_time > 0 : self._muteki_time -= 1
